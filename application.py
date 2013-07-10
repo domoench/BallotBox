@@ -6,7 +6,15 @@ Overview: A polling application.
 """
 
 from flask import Flask, url_for, render_template, request
+import model
+
 app = Flask( __name__ )
+
+# REDIS CONFIG
+HOST = 'localhost'
+PORT = 6379
+
+db = model.Model( HOST, PORT )
 
 @app.route( '/', methods = ['GET', 'POST'] )
 def indexPage():
@@ -20,6 +28,7 @@ def indexPage():
     result = ''
     for key in request.form:
       result += request.form[ key ]
+      db.createPoll( result )
     return result
 
 @app.route( '/<poll_key>/<participant_key>', methods = ['GET', 'PUT'] )
