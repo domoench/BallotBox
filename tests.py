@@ -22,6 +22,7 @@ PORT = config.conf[ 'PORT' ]
 def runTests():
   testRedis()
   testCreatePoll()
+  clearRedis()
   print 'All tests passed!'
 
 def check( predicate ):
@@ -34,10 +35,6 @@ def testRedis():
   check( client.get('v1') == 'test value 1' )
   client.delete( 'v1' )
   check( client.get('v1') == None )
-
-def testModel():
-  db = model.Model( HOST, PORT )
-  # TODO: How to test?
 
 # TODO: Form Parsing Tests
 
@@ -65,9 +62,17 @@ def testCreatePoll():
   check( poll_data['name'] == name )
   check( poll_data['choices'] == choices )
   check( poll_data['close'] == close )
-  # check( poll_data['participants'] == participants )
+  # TODO: check( poll_data['participants'] == participants )
   check( poll_data['type'] == poll_type )
-  # check( poll_data['initiator'] == initiator )
+  # TODO: check( poll_data['initiator'] == initiator )
+
+  db.client.delete( new_poll_key )
+
+def clearRedis():
+  db = model.Model( HOST, PORT )
+  for key in db.client.keys( '*' ):
+    db.client.delete( key )
+  check( len(db.client.keys('*')) == 0 )
 
 if __name__ == '__main__':
   runTests()

@@ -19,24 +19,23 @@ class Model:
     to the DB.
 
     Args:
-    poll_data_raw: a python dictionary of validated, unprocessed poll data of
-    the following form:
-      {
-        'name': 'Favorite Color',
-        'choices': [ 'Red', 'Blue', 'Green', 'Teal' ],
-        'close': datetime.datetime(2014, 7, 11, 4, 0).isoformat(),
-        'participants': [ 'alouie@gmail.com', 'lluna@gmail.com' ],
-        'type': 'majority',
-        'initiator': 'david.moench@arc90.com'
-      }
+      poll_data_raw: a python dictionary of validated, unprocessed poll data of
+        the following form:
+        {
+          'name': 'Favorite Color',
+          'choices': [ 'Red', 'Blue', 'Green', 'Teal' ],
+          'close': datetime.datetime(2014, 7, 11, 4, 0).isoformat(),
+          'participants': [ 'alouie@gmail.com', 'lluna@gmail.com' ],
+          'type': 'majority',
+          'initiator': 'david.moench@arc90.com'
+        }
 
     Returns:
       The created poll's key string. For example:
-      'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
+        'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
     """
     now = datetime.datetime.utcnow()
-    close =  datetime.datetime.strptime( poll_data_raw['close'],
-                                         '%Y-%m-%dT%H:%M:%S')
+    close = datetime.datetime.strptime( poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
     ongoing = close - now > datetime.timedelta( minutes = 0 )
     poll_data_processed = {
       'name': poll_data_raw[ 'name' ],
