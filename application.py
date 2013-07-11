@@ -6,13 +6,14 @@ Overview: A polling application.
 """
 
 from flask import Flask, url_for, render_template, request
+import config
 import model
 
 app = Flask( __name__ )
 
 # REDIS CONFIG
-HOST = 'localhost'
-PORT = 6379
+HOST = config.conf[ 'HOST' ]
+PORT = config.conf[ 'PORT' ]
 
 db = model.Model( HOST, PORT )
 
