@@ -49,7 +49,49 @@ class Model:
         helpers.generateKeyString( poll_data_raw['participants'][1], now.isoformat(), 'part_' )
       ]
     }
-
     poll_key = helpers.generateKeyString( poll_data_raw['name'], now.isoformat(), 'poll_' )
     self.client.set( poll_key, json.dumps(poll_data_processed) )
     return poll_key
+
+  def createInitiator( self, init_key, init_data_raw ):
+    """
+    Create a new Initiator record on the DB.
+
+    Args:
+      init_key: The initiator's key string. For Example:
+        init_4dc6297e78836e8a5c48b0deb3b7cf3ace70b300
+      init_data_raw:  a python dictionary of validated, unprocessed initiator
+        data of the following form:
+        {
+          'email': 'david.moench@arc90.com',
+          'poll': 'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
+        }
+
+    Returns:
+      The created initiator's key string.
+    """
+    self.client.set( init_key, json.dumps(init_data_raw) )
+    return init_key
+
+  def createParticipant( self, part_key, part_data_raw ):
+    """
+    Create a new Participant record on the DB.
+
+    Args:
+      part_key: The participant's key string. For Example:
+        'part_247fd90ba860b79ef41e0770638c69bac98cbd94'
+      part_data_raw: a python dictionary of validated, unprocessed participant
+        data of the following form:
+        {
+          'email': 'alouie@gmail.com',
+          'poll': 'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef',
+          'voted': True,
+          'choice': 1
+        }
+        Note: If 'voted' is False, 'choice' should be None
+
+    Returns:
+      The created participant's key string.
+    """
+    self.client.set( part_key, json.dumps(part_data_raw) )
+    return part_key
