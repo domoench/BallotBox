@@ -59,17 +59,6 @@ def testRedis():
 
 # TODO: Form Parsing Tests
 
-def testCreateAndGetPoll():
-  new_poll_key = db.createPoll( poll_data_raw )
-  poll_data = db.getPoll( new_poll_key )
-  check( poll_data['name'] == name )
-  check( poll_data['choices'] == choices )
-  check( poll_data['close'] == close )
-  # TODO: check( poll_data['participants'] == participants )
-  check( poll_data['type'] == poll_type )
-  # TODO: check( poll_data['initiator'] == initiator )
-  clearRedis()
-
 def testCreateAndGetInitiator():
   now_str = datetime.datetime.utcnow().isoformat()
   poll_key = helpers.generateKeyString( poll_data_raw['name'], now_str, 'poll_' )
@@ -104,6 +93,21 @@ def testCreateAndGetParticipant():
   check( part_data['poll'] == poll_key )
   check( part_data['voted'] == True )
   check( part_data['choice'] == 1 )
+  clearRedis()
+
+def testCreateAndGetPoll():
+  new_poll_key = db.createPoll( poll_data_raw )
+  poll_data = db.getPoll( new_poll_key )
+  check( poll_data['name'] == name )
+  check( poll_data['choices'] == choices )
+  check( poll_data['close'] == close )
+  check( poll_data['type'] == poll_type )
+
+  # Look up initiator info from poll
+  # Look up participant info from poll
+  # Look up poll from initiator
+  # Look up poll from participant
+
   clearRedis()
 
 def clearRedis():

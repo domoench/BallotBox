@@ -37,20 +37,42 @@ class Model:
     now = datetime.datetime.utcnow()
     close = datetime.datetime.strptime( poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
     ongoing = close - now > datetime.timedelta( minutes = 0 )
+    init_key = helpers.generateKeyString( poll_data_raw['initiator'], now.isoformat(), 'init_' )
+
+    part_map = {}
+    for email in poll_data_raw[ 'participants' ]:
+      part_key = helpers.generateKeyString(email, now.isoformat(), 'part_')
+      part_map['part_key'] = email
+
     poll_data_processed = {
       'name': poll_data_raw[ 'name' ],
       'choices': poll_data_raw[ 'choices' ],
       'ongoing': ongoing,
       'close': poll_data_raw[ 'close' ],
       'type': poll_data_raw[ 'type' ],
-      'initiator': helpers.generateKeyString( poll_data_raw['initiator'], now.isoformat(), 'init_' ),
-      'participants': [
-        helpers.generateKeyString( poll_data_raw['participants'][0], now.isoformat(), 'part_' ),
-        helpers.generateKeyString( poll_data_raw['participants'][1], now.isoformat(), 'part_' )
-      ]
+      'initiator': init_key,
+      'participants': part_map.keys()
     }
     poll_key = helpers.generateKeyString( poll_data_raw['name'], now.isoformat(), 'poll_' )
     self.client.set( poll_key, json.dumps(poll_data_processed) )
+
+    # Create initiator's record
+    init_data = {
+      'email': poll_data_raw[ 'initiator' ],
+      'poll': poll_key
+    }
+    self.createInitiator( init_key, init_data )
+
+    # Create participants' records
+    for part_key in part_map:
+      part_data = {
+        'email': part_map[ part_key ],
+        'poll': poll_key,
+        'voted': False,
+        'choice': None
+      }
+      self.createParticipant( part_key, part_data )
+
     return poll_key
 
   def createInitiator( self, init_key, init_data_raw ):
