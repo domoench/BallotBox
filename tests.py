@@ -40,8 +40,9 @@ db = model.Model( HOST, PORT )
 
 def runTests():
   testRedis()
-  testCreatePoll()
-  testCreateInitiator()
+  testCreateAndGetPoll()
+  testCreateAndGetInitiator()
+  testCreateAndGetParticipant()
   clearRedis()
   print 'All tests passed!'
 
@@ -58,9 +59,9 @@ def testRedis():
 
 # TODO: Form Parsing Tests
 
-def testCreatePoll():
+def testCreateAndGetPoll():
   new_poll_key = db.createPoll( poll_data_raw )
-  poll_data = json.loads( db.client.get(new_poll_key) )
+  poll_data = db.getPoll( new_poll_key )
   check( poll_data['name'] == name )
   check( poll_data['choices'] == choices )
   check( poll_data['close'] == close )
@@ -69,7 +70,7 @@ def testCreatePoll():
   # TODO: check( poll_data['initiator'] == initiator )
   clearRedis()
 
-def testCreateInitiator():
+def testCreateAndGetInitiator():
   now_str = datetime.datetime.utcnow().isoformat()
   poll_key = helpers.generateKeyString( poll_data_raw['name'], now_str, 'poll_' )
   init_key = helpers.generateKeyString( poll_data_raw['initiator'], now_str, 'init_' )
@@ -80,13 +81,30 @@ def testCreateInitiator():
 
   # Insert then Check
   db.createInitiator( init_key, init_data_raw )
-  init_data = json.loads( db.client.get(init_key) )
-  print init_data
-  check( init_data_raw['email'] == poll_data_raw['initiator'] )
-  check( init_data_raw['poll'] == poll_key )
+  init_data = db.getInitiator( init_key )
+  check( init_data['email'] == poll_data_raw['initiator'] )
+  check( init_data['poll'] == poll_key )
   clearRedis()
 
-# def testCreateParticipant():
+def testCreateAndGetParticipant():
+  now_str = datetime.datetime.utcnow().isoformat()
+  poll_key = helpers.generateKeyString( poll_data_raw['name'], now_str, 'poll_' )
+  part_key = helpers.generateKeyString( poll_data_raw['participants'][0], now_str, 'part_' )
+  part_data_raw = {
+    'email': poll_data_raw[ 'participants' ][ 0 ],
+    'poll': poll_key,
+    'voted': True,
+    'choice': 1
+  }
+
+  # Insert then Check
+  db.createParticipant( part_key, part_data_raw )
+  part_data = db.getParticipant( part_key )
+  check( part_data['email'] == poll_data_raw[ 'participants' ][ 0 ] )
+  check( part_data['poll'] == poll_key )
+  check( part_data['voted'] == True )
+  check( part_data['choice'] == 1 )
+  clearRedis()
 
 def clearRedis():
   db = model.Model( HOST, PORT )

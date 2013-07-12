@@ -95,3 +95,45 @@ class Model:
     """
     self.client.set( part_key, json.dumps(part_data_raw) )
     return part_key
+
+  def getPoll( self, poll_key ):
+    """
+    Get and JSON decode a poll record.
+
+    Args:
+      poll_key: The poll's key string.
+
+    Returns:
+      A python dictionary of the record.
+    """
+    if poll_key[:5] != 'poll_':
+      raise Exception( 'Incorrect key passed to getPoll(): ' + poll_key )
+    return json.loads( self.client.get(poll_key) )
+
+  def getParticipant( self, part_key ):
+    """
+    Get and JSON decode a participant record.
+
+    Args:
+      part_key: The participant's key string.
+
+    Returns:
+      A python dictionary of the record.
+    """
+    if part_key[:5] != 'part_':
+      raise Exception( 'Incorrect key passed to getPartiticpant(): ' + part_key )
+    return json.loads( self.client.get(part_key) )
+
+  def getInitiator( self, init_key ):
+    """
+    Get and JSON decode a initiator record.
+
+    Args:
+      init_key: The initiator's key string.
+
+    Returns:
+      A python dictionary of the record.
+    """
+    if init_key[:5] != 'init_':
+      raise Exception( 'Incorrect key passed to getInitiator(): ' + init_key )
+    return json.loads( self.client.get(init_key) )
