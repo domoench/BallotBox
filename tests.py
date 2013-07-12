@@ -96,17 +96,34 @@ def testCreateAndGetParticipant():
   clearRedis()
 
 def testCreateAndGetPoll():
-  new_poll_key = db.createPoll( poll_data_raw )
-  poll_data = db.getPoll( new_poll_key )
+  poll_key = db.createPoll( poll_data_raw )
+  poll_data = db.getPoll( poll_key )
   check( poll_data['name'] == name )
   check( poll_data['choices'] == choices )
   check( poll_data['close'] == close )
   check( poll_data['type'] == poll_type )
 
   # Look up initiator info from poll
-  # Look up participant info from poll
+  init_key = poll_data[ 'initiator' ]
+  init_data = db.getInitiator( init_key )
+  check( init_data['email'] == poll_data_raw['initiator'] )
+  check( init_data['poll'] == poll_key )
+
+  # Look up participants info from poll
+  num_participants = len( poll_data_raw['participants'] )
+  key_count = 0
+  for part_key in poll_data[ 'participants' ]:
+    key_count += 1
+    part_data = db.getParticipant( part_key )
+    check( part_data['poll'] == poll_key )
+    check( part_data['email'] in poll_data_raw['participants'] )
+  check( num_participants == key_count )
+
   # Look up poll from initiator
+  check( poll_data == db.getPoll(init_data['poll']) )
+
   # Look up poll from participant
+  check( poll_data == db.getPoll(part_data['poll']) )
 
   clearRedis()
 

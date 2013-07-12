@@ -42,7 +42,7 @@ class Model:
     part_map = {}
     for email in poll_data_raw[ 'participants' ]:
       part_key = helpers.generateKeyString(email, now.isoformat(), 'part_')
-      part_map['part_key'] = email
+      part_map[ part_key ] = email
 
     poll_data_processed = {
       'name': poll_data_raw[ 'name' ],
