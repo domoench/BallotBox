@@ -39,6 +39,7 @@ def runTests():
   testCreateAndGetPoll()
   testCreateAndGetInitiator()
   testCreateAndGetParticipant()
+  testVote()
   clearRedis()
   print 'All tests passed!'
 
@@ -116,6 +117,15 @@ def testCreateAndGetPoll():
   check(poll_data == db.getPoll(init_data['poll']))
   # Look up poll from participant
   check(poll_data == db.getPoll(part_data['poll']))
+  clearRedis()
+
+def testVote():
+  poll_key = db.createPoll(poll_data_raw)
+  poll_data = db.getPoll(poll_key)
+  for part_key in poll_data['participants']:
+    db.vote(part_key, 0)
+    participant = db.getParticipant(part_key)
+    check(participant['choice'] == 0)
   clearRedis()
 
 def clearRedis():
