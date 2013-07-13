@@ -51,7 +51,7 @@ class Model:
       'close': poll_data_raw['close'],
       'type': poll_data_raw['type'],
       'initiator': init_key,
-      'participants': part_map.keys()
+      'participants': part_map
     }
     poll_key = helpers.generateKeyString(poll_data_raw['name'], now.isoformat(), 'poll_')
     self.client.set(poll_key, json.dumps(poll_data_processed))
@@ -65,13 +65,13 @@ class Model:
 
     # Create participants' records
     for part_key in part_map:
-      part_data = {
+      part_data_raw = {
         'email': part_map[part_key],
         'poll': poll_key,
         'voted': False,
         'choice': None
       }
-      self.setParticipant(part_key, part_data)
+      self.setParticipant(part_key, part_data_raw)
 
     return poll_key
 
@@ -178,3 +178,32 @@ class Model:
     part_data['choice'] = choice
     self.setParticipant(part_key, part_data)
     # TODO: This would be a good place to check if all participant votes
+
+  def addPollParticipants(self, poll_key, new_participants):
+    """
+    Add new participants to an ongoing poll.
+
+    Args:
+      poll_key: The poll's key string.
+      new_participants: A List of well-formed participant email strings.
+
+    Returns:
+      # TODO
+    """
+    poll_data = self.getPoll(poll_key)
+    participants = poll_data['participants']
+    now_str = datetime.datetime.utcnow().isoformat()
+
+    for email in new_participants:
+      # Add new participant key to the Poll
+      new_part_key = helpers.generateKeyString(email, now_str, 'part_')
+      participants[new_part_key] = email
+      self.client.set(poll_key, json.dumps(poll_data))
+      # Create new participant record
+      new_part_data_raw = {
+        'email':  email,
+        'poll': poll_key,
+        'voted': False,
+        'choice': None
+      }
+      self.setParticipant(new_part_key, new_part_data_raw)

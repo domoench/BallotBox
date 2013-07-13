@@ -16,7 +16,7 @@ import datetime
 import json
 
 # CONFIG
-db = model.Model(config.conf['HOST'], config.conf['PORT'])
+md = model.Model(config.conf['HOST'], config.conf['PORT'])
 
 # Mock out some data input. Assume its parsed correctly from the form
 name = 'Favorite Color'
@@ -39,6 +39,7 @@ def runTests():
   testCreateAndGetPoll()
   testCreateAndGetInitiator()
   testCreateAndGetParticipant()
+  testAddPollParticipants()
   testVote()
   clearRedis()
   print 'All tests passed!'
@@ -66,8 +67,8 @@ def testCreateAndGetInitiator():
     'poll': poll_key
   }
   # Insert then Check
-  db.setInitiator(init_key, init_data_raw)
-  init_data = db.getInitiator(init_key)
+  md.setInitiator(init_key, init_data_raw)
+  init_data = md.getInitiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
   clearRedis()
@@ -83,8 +84,8 @@ def testCreateAndGetParticipant():
     'choice': 1
   }
   # Insert then Check
-  db.setParticipant(part_key, part_data_raw)
-  part_data = db.getParticipant(part_key)
+  md.setParticipant(part_key, part_data_raw)
+  part_data = md.getParticipant(part_key)
   check(part_data['email'] == poll_data_raw['participants'][0])
   check(part_data['poll'] == poll_key)
   check(part_data['voted'] == True)
@@ -92,15 +93,15 @@ def testCreateAndGetParticipant():
   clearRedis()
 
 def testCreateAndGetPoll():
-  poll_key = db.createPoll(poll_data_raw)
-  poll_data = db.getPoll(poll_key)
+  poll_key = md.createPoll(poll_data_raw)
+  poll_data = md.getPoll(poll_key)
   check(poll_data['name'] == name)
   check(poll_data['choices'] == choices)
   check(poll_data['close'] == close)
   check(poll_data['type'] == poll_type)
   # Look up initiator info from poll
   init_key = poll_data['initiator']
-  init_data = db.getInitiator(init_key)
+  init_data = md.getInitiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
 
@@ -109,29 +110,48 @@ def testCreateAndGetPoll():
   key_count = 0
   for part_key in poll_data['participants']:
     key_count += 1
-    part_data = db.getParticipant(part_key)
+    part_data = md.getParticipant(part_key)
     check(part_data['poll'] == poll_key)
     check(part_data['email'] in poll_data_raw['participants'])
   check(num_participants == key_count)
   # Look up poll from initiator
-  check(poll_data == db.getPoll(init_data['poll']))
+  check(poll_data == md.getPoll(init_data['poll']))
   # Look up poll from participant
-  check(poll_data == db.getPoll(part_data['poll']))
+  check(poll_data == md.getPoll(part_data['poll']))
   clearRedis()
 
 def testVote():
-  poll_key = db.createPoll(poll_data_raw)
-  poll_data = db.getPoll(poll_key)
+  poll_key = md.createPoll(poll_data_raw)
+  poll_data = md.getPoll(poll_key)
   for part_key in poll_data['participants']:
-    db.vote(part_key, 0)
-    participant = db.getParticipant(part_key)
-    check(participant['choice'] == 0)
+    md.vote(part_key, 0)
+    participant = md.getParticipant(part_key)
+    choice = participant['choice']
+    check(choice == 0)
+    check(poll_data['choices'][choice] == poll_data_raw['choices'][choice])
+  clearRedis()
+
+def testAddPollParticipants():
+  poll_key = md.createPoll(poll_data_raw)
+  # Insert
+  new_participants = []
+  for i in range(0, 300):
+    new_participants.append(str(i) + '@gmail.com')
+  md.addPollParticipants(poll_key, new_participants)
+  # Check
+  poll_participants = md.getPoll(poll_key)['participants']
+  for part_key in poll_participants.keys():
+    part_data = md.getParticipant(part_key)
+    check(part_data['choice'] == None)
+    check(part_data['poll'] == poll_key)
+    check(part_data['voted'] == False)
+    check(part_data['email'] == poll_participants[part_key])
   clearRedis()
 
 def clearRedis():
-  for key in db.client.keys('*'):
-    db.client.delete(key)
-  check(len(db.client.keys('*')) == 0)
+  for key in md.client.keys('*'):
+    md.client.delete(key)
+  check(len(md.client.keys('*')) == 0)
 
 if __name__ == '__main__':
   runTests()
