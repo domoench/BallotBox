@@ -176,6 +176,7 @@ class Model:
     if(choice not in range(num_choices)):
       raise Exception('Invalid choice value provided to model.vote()')
     part_data['choice'] = choice
+    part_data['voted'] = True
     self.setParticipant(part_key, part_data)
     # TODO: This would be a good place to check if all participant votes
 
@@ -210,6 +211,8 @@ class Model:
 
   def checkPollOngoing(self, poll_key):
     """
+    Checks if the poll is still ongoing (meaning there is still time left and
+    there are participants who have not voted). If
     Returns true if there is still time left in the poll and there are still
     participants who have not voted.
 
@@ -222,7 +225,12 @@ class Model:
     now = datetime.datetime.utcnow()
     close = datetime.datetime.strptime(poll_data['close'], '%Y-%m-%dT%H:%M:%S')
     time_remains = close - now > datetime.timedelta(minutes = 0)
+
+    if not poll_data['ongoing']:
+      return False
+
     if not time_remains:
+      self.closePoll(poll_key)
       return False
 
     for part_key in poll_data['participants'].keys():
@@ -230,13 +238,16 @@ class Model:
       if part_data['voted'] == False:
         return True
     # All participants have voted
+    self.closePoll(poll_key)
     return False
-    # Todo - so should i set the poll's 'ongoing' field to False here?
-    #        what is the role of the 'ongoing' field?
-    #        should i also check the 'ongoing' field as a first check in this method?
 
   def closePoll(self, poll_key):
     """
-    """
-    # TODO
+    Sets the poll's 'ongoing' field to False
 
+    Args:
+      poll_key: The poll's key string.
+    """
+    poll_data = self.getPoll(poll_key)
+    poll_data['ongoing'] = False
+    self.client.set(poll_key, json.dumps(poll_data))

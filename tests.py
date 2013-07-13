@@ -41,6 +41,7 @@ def runTests():
   testCreateAndGetParticipant()
   testAddPollParticipants()
   testVote()
+  testCheckPollOngoing()
   clearRedis()
   print 'All tests passed!'
 
@@ -128,6 +129,7 @@ def testVote():
     participant = md.getParticipant(part_key)
     choice = participant['choice']
     check(choice == 0)
+    check(participant['voted'] == True)
     check(poll_data['choices'][choice] == poll_data_raw['choices'][choice])
   clearRedis()
 
@@ -146,6 +148,34 @@ def testAddPollParticipants():
     check(part_data['poll'] == poll_key)
     check(part_data['voted'] == False)
     check(part_data['email'] == poll_participants[part_key])
+  clearRedis()
+
+def testCheckPollOngoing():
+  # Ongoing
+  poll1_key = md.createPoll(poll_data_raw)
+  check(md.checkPollOngoing(poll1_key))
+  poll1_data = md.getPoll(poll1_key)
+  check(poll1_data['ongoing'] == True)
+
+  # Ongoing, but all participants have voted
+  poll2_key = md.createPoll(poll_data_raw)
+  poll2_data = md.getPoll(poll2_key)
+  poll2_part_keys = poll2_data['participants'].keys()
+  for part_key in poll2_part_keys:
+    md.vote(part_key, 0)
+  check(not md.checkPollOngoing(poll2_key))
+  poll2_data = md.getPoll(poll2_key)
+  check(poll2_data['ongoing'] == False)
+
+  # Ongoing, but time is up
+  poll3_key = md.createPoll(poll_data_raw)
+  poll3_data = md.getPoll(poll3_key)
+  poll3_data['close'] = datetime.datetime(1987, 5, 20, 4, 0).isoformat()
+  md.client.set(poll3_key, json.dumps(poll3_data))
+  check(not md.checkPollOngoing(poll3_key))
+  poll3_data = md.getPoll(poll3_key)
+  check(poll3_data['ongoing'] == False)
+
   clearRedis()
 
 # TODO def simulatePollLifecycle():
