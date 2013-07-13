@@ -148,6 +148,8 @@ def testAddPollParticipants():
     check(part_data['email'] == poll_participants[part_key])
   clearRedis()
 
+# TODO def simulatePollLifecycle():
+
 def clearRedis():
   for key in md.client.keys('*'):
     md.client.delete(key)
