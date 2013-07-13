@@ -23,7 +23,7 @@ name = 'Favorite Color'
 choices = ['Red', 'Blue', 'Green', 'Teal']
 close = datetime.datetime(2015, 7, 11, 4, 0).isoformat()
 participants = ['alouie@gmail.com', 'lluna@gmail.com']
-poll_type = 'majority'
+poll_type = 'plurality'
 initiator = 'david.moench@arc90.com'
 poll_data_raw = {
   'name': name,
@@ -65,7 +65,7 @@ def testCreateAndGetInitiator():
     'poll': poll_key
   }
   # Insert then Check
-  db.createInitiator(init_key, init_data_raw)
+  db.setInitiator(init_key, init_data_raw)
   init_data = db.getInitiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
@@ -82,7 +82,7 @@ def testCreateAndGetParticipant():
     'choice': 1
   }
   # Insert then Check
-  db.createParticipant(part_key, part_data_raw)
+  db.setParticipant(part_key, part_data_raw)
   part_data = db.getParticipant(part_key)
   check(part_data['email'] == poll_data_raw['participants'][0])
   check(part_data['poll'] == poll_key)

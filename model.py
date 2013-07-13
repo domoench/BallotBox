@@ -26,7 +26,7 @@ class Model:
           'choices': ['Red', 'Blue', 'Green', 'Teal'],
           'close': datetime.datetime(2014, 7, 11, 4, 0).isoformat(),
           'participants': ['alouie@gmail.com', 'lluna@gmail.com'],
-          'type': 'majority',
+          'type': 'plurality',
           'initiator': 'david.moench@arc90.com'
         }
 
@@ -61,7 +61,7 @@ class Model:
       'email': poll_data_raw['initiator'],
       'poll': poll_key
     }
-    self.createInitiator(init_key, init_data)
+    self.setInitiator(init_key, init_data)
 
     # Create participants' records
     for part_key in part_map:
@@ -71,13 +71,13 @@ class Model:
         'voted': False,
         'choice': None
       }
-      self.createParticipant(part_key, part_data)
+      self.setParticipant(part_key, part_data)
 
     return poll_key
 
-  def createInitiator(self, init_key, init_data_raw):
+  def setInitiator(self, init_key, init_data_raw):
     """
-    Create a new Initiator record on the DB.
+    Create a new, or set an existing, Initiator record on the DB.
 
     Args:
       init_key: The initiator's key string. For Example:
@@ -90,12 +90,12 @@ class Model:
         }
 
     Returns:
-      The created initiator's key string.
+      The initiator's key string.
     """
     self.client.set(init_key, json.dumps(init_data_raw))
     return init_key
 
-  def createParticipant(self, part_key, part_data_raw):
+  def setParticipant(self, part_key, part_data_raw):
     """
     Create a new Participant record on the DB.
 
@@ -113,7 +113,7 @@ class Model:
         Note: If 'voted' is False, 'choice' should be None
 
     Returns:
-      The created participant's key string.
+      The participant's key string.
     """
     self.client.set(part_key, json.dumps(part_data_raw))
     return part_key
@@ -157,5 +157,24 @@ class Model:
       A python dictionary of the record.
     """
     if init_key[:5] != 'init_':
-      raise Exception('Incorrect key passed to getInitiator(): ' + init_key)
+      raise Exception('Incorrect key passed to model.getInitiator(): ' +
+                      init_key)
     return json.loads(self.client.get(init_key))
+
+  def vote(self, part_key, choice):
+    """
+    Set the participant record's 'choice' attribute and set its 'voted'
+    attribute to True.
+
+    Args:
+      part_key: The participant's key string.
+      choice: An integer offset into the parent poll's 'choices' list
+    """
+    part_data = self.getParticipant(part_key)
+    poll_data = self.getPoll(part_data['poll'])
+    num_choices = len(poll_data['choices'])
+    if(choice not in range(num_choices)):
+      raise Exception('Invalid choice value provided to model.vote()')
+    part_data['choice'] = choice
+    self.setParticipant(part_key, part_data)
+    # TODO: This would be a good place to check if all participant votes
