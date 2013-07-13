@@ -7,12 +7,12 @@ import helpers
 import json
 
 class Model:
-  def __init__( self, host, port ):
+  def __init__(self, host, port):
     self.host = host
     self.port = port
-    self.client = redis.StrictRedis( host = self.host, port = self.port, db = 0 )
+    self.client = redis.StrictRedis(host = self.host, port = self.port, db = 0)
 
-  def createPoll( self, poll_data_raw ):
+  def createPoll(self, poll_data_raw):
     """
     Create a new poll record on the DB. Takes a dictionary of poll data,
     generates keys for the poll, initiator, and participants, and stores it
@@ -23,9 +23,9 @@ class Model:
         the following form:
         {
           'name': 'Favorite Color',
-          'choices': [ 'Red', 'Blue', 'Green', 'Teal' ],
+          'choices': ['Red', 'Blue', 'Green', 'Teal'],
           'close': datetime.datetime(2014, 7, 11, 4, 0).isoformat(),
-          'participants': [ 'alouie@gmail.com', 'lluna@gmail.com' ],
+          'participants': ['alouie@gmail.com', 'lluna@gmail.com'],
           'type': 'majority',
           'initiator': 'david.moench@arc90.com'
         }
@@ -35,47 +35,47 @@ class Model:
         'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
     """
     now = datetime.datetime.utcnow()
-    close = datetime.datetime.strptime( poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
-    ongoing = close - now > datetime.timedelta( minutes = 0 )
-    init_key = helpers.generateKeyString( poll_data_raw['initiator'], now.isoformat(), 'init_' )
+    close = datetime.datetime.strptime(poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
+    ongoing = close - now > datetime.timedelta(minutes = 0)
+    init_key = helpers.generateKeyString(poll_data_raw['initiator'], now.isoformat(), 'init_')
 
     part_map = {}
-    for email in poll_data_raw[ 'participants' ]:
+    for email in poll_data_raw['participants']:
       part_key = helpers.generateKeyString(email, now.isoformat(), 'part_')
-      part_map[ part_key ] = email
+      part_map[part_key] = email
 
     poll_data_processed = {
-      'name': poll_data_raw[ 'name' ],
-      'choices': poll_data_raw[ 'choices' ],
+      'name': poll_data_raw['name'],
+      'choices': poll_data_raw['choices'],
       'ongoing': ongoing,
-      'close': poll_data_raw[ 'close' ],
-      'type': poll_data_raw[ 'type' ],
+      'close': poll_data_raw['close'],
+      'type': poll_data_raw['type'],
       'initiator': init_key,
       'participants': part_map.keys()
     }
-    poll_key = helpers.generateKeyString( poll_data_raw['name'], now.isoformat(), 'poll_' )
-    self.client.set( poll_key, json.dumps(poll_data_processed) )
+    poll_key = helpers.generateKeyString(poll_data_raw['name'], now.isoformat(), 'poll_')
+    self.client.set(poll_key, json.dumps(poll_data_processed))
 
     # Create initiator's record
     init_data = {
-      'email': poll_data_raw[ 'initiator' ],
+      'email': poll_data_raw['initiator'],
       'poll': poll_key
     }
-    self.createInitiator( init_key, init_data )
+    self.createInitiator(init_key, init_data)
 
     # Create participants' records
     for part_key in part_map:
       part_data = {
-        'email': part_map[ part_key ],
+        'email': part_map[part_key],
         'poll': poll_key,
         'voted': False,
         'choice': None
       }
-      self.createParticipant( part_key, part_data )
+      self.createParticipant(part_key, part_data)
 
     return poll_key
 
-  def createInitiator( self, init_key, init_data_raw ):
+  def createInitiator(self, init_key, init_data_raw):
     """
     Create a new Initiator record on the DB.
 
@@ -92,10 +92,10 @@ class Model:
     Returns:
       The created initiator's key string.
     """
-    self.client.set( init_key, json.dumps(init_data_raw) )
+    self.client.set(init_key, json.dumps(init_data_raw))
     return init_key
 
-  def createParticipant( self, part_key, part_data_raw ):
+  def createParticipant(self, part_key, part_data_raw):
     """
     Create a new Participant record on the DB.
 
@@ -115,10 +115,10 @@ class Model:
     Returns:
       The created participant's key string.
     """
-    self.client.set( part_key, json.dumps(part_data_raw) )
+    self.client.set(part_key, json.dumps(part_data_raw))
     return part_key
 
-  def getPoll( self, poll_key ):
+  def getPoll(self, poll_key):
     """
     Get and JSON decode a poll record.
 
@@ -129,10 +129,10 @@ class Model:
       A python dictionary of the record.
     """
     if poll_key[:5] != 'poll_':
-      raise Exception( 'Incorrect key passed to getPoll(): ' + poll_key )
-    return json.loads( self.client.get(poll_key) )
+      raise Exception('Incorrect key passed to getPoll(): ' + poll_key)
+    return json.loads(self.client.get(poll_key))
 
-  def getParticipant( self, part_key ):
+  def getParticipant(self, part_key):
     """
     Get and JSON decode a participant record.
 
@@ -143,10 +143,10 @@ class Model:
       A python dictionary of the record.
     """
     if part_key[:5] != 'part_':
-      raise Exception( 'Incorrect key passed to getPartiticpant(): ' + part_key )
-    return json.loads( self.client.get(part_key) )
+      raise Exception('Incorrect key passed to getPartiticpant(): ' + part_key)
+    return json.loads(self.client.get(part_key))
 
-  def getInitiator( self, init_key ):
+  def getInitiator(self, init_key):
     """
     Get and JSON decode a initiator record.
 
@@ -157,5 +157,5 @@ class Model:
       A python dictionary of the record.
     """
     if init_key[:5] != 'init_':
-      raise Exception( 'Incorrect key passed to getInitiator(): ' + init_key )
-    return json.loads( self.client.get(init_key) )
+      raise Exception('Incorrect key passed to getInitiator(): ' + init_key)
+    return json.loads(self.client.get(init_key))

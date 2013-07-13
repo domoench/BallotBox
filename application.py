@@ -9,30 +9,27 @@ from flask import Flask, url_for, render_template, request
 import config
 import model
 
-app = Flask( __name__ )
+app = Flask(__name__)
 
-# REDIS CONFIG
-HOST = config.conf[ 'HOST' ]
-PORT = config.conf[ 'PORT' ]
+# DB Connect
+db = model.Model(config.conf['HOST'], config.conf['PORT'])
 
-db = model.Model( HOST, PORT )
-
-@app.route( '/', methods = ['GET', 'POST'] )
+@app.route('/', methods = ['GET', 'POST'])
 def indexPage():
   """
     The index page. 'GET' generates a form to describe a new poll.
     'POST' creates the new poll on the DB.
   """
   if request.method == 'GET':
-    return render_template( 'pollcreate.html' )
+    return render_template('pollcreate.html')
   else: # POST
     result = ''
     for key in request.form:
-      result += request.form[ key ]
-      db.createPoll( result )
+      result += request.form[key]
+      db.createPoll(result)
     return result
 
-@app.route( '/<poll_key>/<participant_key>', methods = ['GET', 'PUT'] )
+@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'PUT'])
 def participantPollPage():
   """
     The participants' voting page. 'GET' generates the participant's ballot.
@@ -44,5 +41,5 @@ def participantPollPage():
     # TODO
 
 if __name__ == '__main__':
-  app.run( debug = True )
-  # To run publicly: app.run( host = '0.0.0.0' )
+  app.run(debug = True)
+  # To run publicly: app.run(host = '0.0.0.0')

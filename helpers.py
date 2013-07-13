@@ -6,7 +6,7 @@
 
 import hashlib
 
-def generateKeyString( seed, time_now, prefix ):
+def generateKeyString(seed, time_now, prefix):
   """
   Generates a unique key that will be used in Redis to identify poll,
   initiator, and participant records.
@@ -17,8 +17,8 @@ def generateKeyString( seed, time_now, prefix ):
     prefix: A string to identify the key as IDing a poll, initiator, or
       participant record.
   """
-  if prefix not in [ 'poll_', 'init_', 'part_' ]:
-    raise Exception( 'Invalid key prefix: ' + prefix )
-  hash_token = hashlib.sha256( seed + time_now ).hexdigest()
+  if prefix not in ['poll_', 'init_', 'part_']:
+    raise Exception('Invalid key prefix: ' + prefix)
+  hash_token = hashlib.sha256(seed + time_now).hexdigest()
   return prefix + hash_token
 
