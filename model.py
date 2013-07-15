@@ -251,3 +251,27 @@ class Model:
     poll_data = self.getPoll(poll_key)
     poll_data['ongoing'] = False
     self.client.set(poll_key, json.dumps(poll_data))
+
+  def getAllVotes(self, poll_key):
+    """
+    Returns a list of all participants' choices.
+
+    Args:
+      poll_key: The poll's key string.
+
+    Returns:
+      A list where each element is one participant's integer choice
+    """
+    poll_data = self.getPoll(poll_key)
+    if poll_data['ongoing']:
+      raise Exception('Can\'t aggregate the votes of an ongoing poll.')
+    part_keys = poll_data['participants']
+    results = []
+    for part in part_keys:
+      part_choice = self.getParticipant(part_key)['choice']
+      results.append(part_choice)
+    return results
+
+  # TODO:
+  # Q: Maybe I'm doing to much in this model. For example, should results calculation
+  #    be done elsewhere? Create a controller class or something?
