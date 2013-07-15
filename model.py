@@ -267,7 +267,7 @@ class Model:
       raise Exception('Can\'t aggregate the votes of an ongoing poll.')
     part_keys = poll_data['participants']
     results = []
-    for part in part_keys:
+    for part_key in part_keys:
       part_choice = self.getParticipant(part_key)['choice']
       results.append(part_choice)
     return results

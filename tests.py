@@ -14,6 +14,7 @@ import config
 import helpers
 import datetime
 import json
+import random
 
 # CONFIG
 md = model.Model(config.conf['HOST'], config.conf['PORT'])
@@ -42,7 +43,8 @@ def runTests():
   testAddPollParticipants()
   testVote()
   testCheckPollOngoing()
-  testCalculateStats()
+  testCalcStats()
+  testGetAllVotes()
   clearRedis()
   print 'All tests passed!'
 
@@ -179,15 +181,32 @@ def testCheckPollOngoing():
 
   clearRedis()
 
-def testCalculateStats():
+def testCalcStats():
   results = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
-  expected = {
-    0: 30,
-    1: 40,
-    2: 10,
-    3: 20
-  }
+  expected = {0: 30, 1: 40, 2: 10, 3: 20}
   check(results == expected)
+
+def testGetAllVotes():
+  poll_key = md.createPoll(poll_data_raw)
+  # Insert
+  new_participants = []
+  for i in range(0, 100):
+    new_participants.append(str(i) + '@gmail.com')
+  md.addPollParticipants(poll_key, new_participants)
+  # Vote
+  participants = md.getPoll(poll_key)['participants']
+  for part_key in participants:
+    md.vote(part_key, random.randint(0, 3))
+  md.closePoll(poll_key)
+  poll_data = md.getPoll(poll_key)
+  check(len(poll_data['participants']) == 102)
+  choices_list = md.getAllVotes(poll_key)
+  results = helpers.calcStats(choices_list, 4)
+  total_percent = 0
+  for key in results:
+    total_percent += results[key]
+  check(total_percent == 100.0)
+  clearRedis()
 
 # TODO def simulatePollLifecycle():
 
