@@ -42,6 +42,7 @@ def runTests():
   testAddPollParticipants()
   testVote()
   testCheckPollOngoing()
+  testCalculateStats()
   clearRedis()
   print 'All tests passed!'
 
@@ -177,6 +178,16 @@ def testCheckPollOngoing():
   check(poll3_data['ongoing'] == False)
 
   clearRedis()
+
+def testCalculateStats():
+  results = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
+  expected = {
+    0: 30,
+    1: 40,
+    2: 10,
+    3: 20
+  }
+  check(results == expected)
 
 # TODO def simulatePollLifecycle():
 

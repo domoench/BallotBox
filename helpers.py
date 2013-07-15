@@ -22,7 +22,7 @@ def generateKeyString(seed, time_now, prefix):
   hash_token = hashlib.sha256(seed + time_now).hexdigest()
   return prefix + hash_token
 
-def calculateStats(choices_list, num_choices):
+def calcStats(choices_list, num_choices):
   """
   Calculate the percentage breakdown between the choices in the given choices
   list
@@ -36,10 +36,15 @@ def calculateStats(choices_list, num_choices):
     A dictionary mapping each choice to its percentage of the total vote. For
     example: {0: 30, 1: 40, 2: 10, 3: 20}
   """
+  num_votes = len(choices_list)
   stats = {}
   for i in range(0, num_choices):
     stats[i] = 0
+  # Tally up votes
   for choice in choices_list:
     stats[choice] += 1
+  # Convert to percentage
+  for key in stats:
+    stats[key] = (stats[key] / float(num_votes)) * 100
   return stats
 
