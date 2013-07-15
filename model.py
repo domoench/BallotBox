@@ -272,6 +272,45 @@ class Model:
       results.append(part_choice)
     return results
 
-  # TODO:
-  # Q: Maybe I'm doing to much in this model. For example, should results calculation
-  #    be done elsewhere? Create a controller class or something?
+  def deletePerson(self, key):
+    """
+    Delete a participant or initiator record.
+
+    Args:
+      key: The particpant or initator key string
+    """
+    if key[:5] not in ['part_', 'init_']:
+      raise Exception('model.deletePerson() can only be performed on a' +
+                      'participant or initiator record.')
+    self.client.delete(key)
+
+  def getParticipantVoteLinks(self, poll_key):
+    """
+    Gets a list of email/vote-link pairs for each participant. For example:
+
+    Args:
+      poll_key: The poll's key string.
+
+    Returns:
+      A list of email/vote-link pairs for each participant. For example:
+      [
+        {
+          'email': 'alouie@gmail.com',
+          'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_247fd90ba860b79ef41e0770638c69bac98cbd94
+        },
+        {
+          'email': 'lluna@gmail.com',
+          'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_9b55ce38e1074928830b37bda5ddf325ac70a3d7
+        },
+      ]
+    """
+    poll_data = self.getPoll(poll_key)
+    part_map = poll_data['participants']
+    result = []
+    for part_key in part_map.keys():
+      participant_pair = {
+        'email': part_map[part_key],
+        'vote_link': '/' + poll_key + '/' + part_key
+      }
+      result.append(participant_pair)
+    return result

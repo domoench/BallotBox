@@ -47,4 +47,3 @@ def calcStats(choices_list, num_choices):
   for key in stats:
     stats[key] = (stats[key] / float(num_votes)) * 100
   return stats
-

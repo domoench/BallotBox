@@ -15,6 +15,9 @@ import helpers
 import datetime
 import json
 import random
+import math
+import smtplib
+from email.mime.text import MIMEText
 
 # CONFIG
 md = model.Model(config.conf['HOST'], config.conf['PORT'])
@@ -23,6 +26,7 @@ md = model.Model(config.conf['HOST'], config.conf['PORT'])
 name = 'Favorite Color'
 choices = ['Red', 'Blue', 'Green', 'Teal']
 close = datetime.datetime(2015, 7, 11, 4, 0).isoformat()
+print close
 participants = ['alouie@gmail.com', 'lluna@gmail.com']
 poll_type = 'plurality'
 initiator = 'david.moench@arc90.com'
@@ -45,6 +49,8 @@ def runTests():
   testCheckPollOngoing()
   testCalcStats()
   testGetAllVotes()
+  testDeletePerson()
+  # testSmtp()
   clearRedis()
   print 'All tests passed!'
 
@@ -186,6 +192,7 @@ def testCalcStats():
   expected = {0: 30, 1: 40, 2: 10, 3: 20}
   check(results == expected)
 
+# This basically simulates the lifecycle of an entire vote
 def testGetAllVotes():
   poll_key = md.createPoll(poll_data_raw)
   # Insert
@@ -205,10 +212,30 @@ def testGetAllVotes():
   total_percent = 0
   for key in results:
     total_percent += results[key]
-  check(total_percent == 100.0)
+  check(math.fabs(total_percent - 100.0) < 0.00001)
   clearRedis()
 
-# TODO def simulatePollLifecycle():
+def testDeletePerson():
+  poll_key = md.createPoll(poll_data_raw)
+  participants = md.getPoll(poll_key)['participants']
+  for part_key in participants:
+    md.deletePerson(part_key)
+  md.deletePerson(md.getPoll(poll_key)['initiator'])
+  # Only the poll record remains
+  check(len(md.client.keys('*')) == 1)
+
+def testSmtp():
+  from_addr = 'david.moench@arc90.com'
+  to_addr = 'david.moench@arc90.com'
+  msg = MIMEText('Flask generated this email. Yay')
+  msg['Subject'] = 'BallotBox Test Email'
+  msg['From'] = from_addr
+  msg['To'] = to_addr
+  # Fire up our SMTP server
+  print msg.as_string()
+  s = smtplib.SMTP('localhost')
+  s.sendmail(from_addr, [to_addr], msg.as_string())
+  s.quit()
 
 def clearRedis():
   for key in md.client.keys('*'):
