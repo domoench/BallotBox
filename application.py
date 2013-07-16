@@ -28,6 +28,7 @@ def indexPage():
     for key in request.form:
       poll_data_raw[key] = request.form[key]
     # TODO: Use poll_data_raw from form instead of the following test data
+    # once you get front end form set up and validating correctly.
     test_poll_data = {
       'name': 'Favorite Color',
       'choices': ['Red', 'Blue', 'Green', 'Teal'],

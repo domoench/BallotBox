@@ -49,6 +49,7 @@ def runTests():
   testCheckPollOngoing()
   testCalcStats()
   testGetAllVotes()
+  testGetParticipantVoteLinks()
   testDeletePerson()
   # testSmtp()
   clearRedis()
@@ -223,6 +224,7 @@ def testDeletePerson():
   md.deletePerson(md.getPoll(poll_key)['initiator'])
   # Only the poll record remains
   check(len(md.client.keys('*')) == 1)
+  clearRedis()
 
 def testSmtp():
   from_addr = 'david.moench@arc90.com'
@@ -236,6 +238,22 @@ def testSmtp():
   s = smtplib.SMTP('localhost')
   s.sendmail(from_addr, [to_addr], msg.as_string())
   s.quit()
+
+def testGetParticipantVoteLinks():
+  poll_key = md.createPoll(poll_data_raw)
+  # Insert
+  new_participants = []
+  for i in range(0, 100):
+    new_participants.append(str(i) + '@gmail.com')
+  md.addPollParticipants(poll_key, new_participants)
+  poll_data = md.getPoll(poll_key)
+  results = md.getParticipantVoteLinks(poll_key)
+  for pair in results:
+    vote_link = pair['vote_link']
+    check(vote_link[71:] in poll_data['participants'])
+    check(vote_link[1:70] == poll_key)
+
+  clearRedis()
 
 def clearRedis():
   for key in md.client.keys('*'):
