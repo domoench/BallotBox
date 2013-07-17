@@ -241,7 +241,6 @@ def testSmtp():
 
 def testGetParticipantVoteLinks():
   poll_key = md.createPoll(poll_data_raw)
-  # Insert
   new_participants = []
   for i in range(0, 100):
     new_participants.append(str(i) + '@gmail.com')
@@ -252,7 +251,6 @@ def testGetParticipantVoteLinks():
     vote_link = pair['vote_link']
     check(vote_link[71:] in poll_data['participants'])
     check(vote_link[1:70] == poll_key)
-
   clearRedis()
 
 def clearRedis():

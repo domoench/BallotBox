@@ -18,8 +18,8 @@ md = model.Model(config.conf['HOST'], config.conf['PORT'])
 @app.route('/', methods = ['GET', 'POST'])
 def indexPage():
   """
-    The index page. 'GET' generates a form to describe a new poll.
-    'POST' creates the new poll on the DB.
+  The index page. 'GET' generates a form to describe a new poll.
+  'POST' creates the new poll on the DB.
   """
   if request.method == 'GET':
     return render_template('pollcreate.html')
@@ -46,15 +46,16 @@ def indexPage():
 @app.route('/<poll_key>/<participant_key>', methods = ['GET', 'PUT'])
 def participantPollPage(poll_key, participant_key):
   """
-    The participants' voting page. 'GET' generates the participant's ballot.
-    'PUT' submits and stores their vote.
+  The participants' voting page. 'GET' generates the participant's ballot.
+  'PUT' submits and stores their vote.
   """
   if request.method == 'GET':
     if participant_key[:5] != 'part_':
       raise Exception('Invalid participant key.')
-    part_data = md.getParticipant(participant_key)
-    resp = 'Hi ' + part_data['email']
-    return resp
+    page_data = {}
+    page_data['participant'] = md.getParticipant(participant_key)
+    page_data['poll'] = md.getPoll(poll_key)
+    return render_template('vote.html', data = page_data)
   else:
     # TODO
     return 'Not written yet!'
