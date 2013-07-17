@@ -172,12 +172,15 @@ class Model:
     """
     part_data = self.getParticipant(part_key)
     poll_data = self.getPoll(part_data['poll'])
+    print 'poll_name', poll_data['name']
     num_choices = len(poll_data['choices'])
+    print 'num_choices', num_choices
     if(choice not in range(num_choices)):
-      raise Exception('Invalid choice value provided to model.vote()')
+      raise Exception('Invalid choice value ' + choice + ' provided to model.vote()')
     part_data['choice'] = choice
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
+    print part_data['email'] + ' voted.'
     # TODO: This would be a good place to check if all participant votes
 
   def addPollParticipants(self, poll_key, new_participants):

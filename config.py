@@ -3,6 +3,7 @@ BallotBox configuration values
 """
 
 conf = {
-  'HOST': 'localhost',
-  'PORT': 6379
+  'REDIS_HOST': 'localhost',
+  'REDIS_PORT': 6379,
+  'DOMAIN_ROOT': 'http://localhost:5000'
 }

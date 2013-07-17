@@ -13,7 +13,7 @@ from json import dumps, loads
 app = Flask(__name__)
 
 # DB Connect
-md = model.Model(config.conf['HOST'], config.conf['PORT'])
+md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
 
 @app.route('/', methods = ['GET', 'POST'])
 def indexPage():
@@ -43,11 +43,13 @@ def indexPage():
     # voting links and return them all here
     return dumps(md.getParticipantVoteLinks(poll_key))
 
-@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'PUT'])
+@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])
 def participantPollPage(poll_key, participant_key):
   """
   The participants' voting page. 'GET' generates the participant's ballot.
   'PUT' submits and stores their vote.
+
+  # TODO: Add handler for invalid or expired poll or participant keys
   """
   if request.method == 'GET':
     if participant_key[:5] != 'part_':
@@ -56,9 +58,11 @@ def participantPollPage(poll_key, participant_key):
     page_data['participant'] = md.getParticipant(participant_key)
     page_data['poll'] = md.getPoll(poll_key)
     return render_template('vote.html', data = page_data)
-  else:
-    # TODO
-    return 'Not written yet!'
+  else: # POST
+    # TODO: Reroute to a PUT request to store in Redis. More restful.
+    md.vote(participant_key, int(request.form['choice']))
+    participant = md.getParticipant(participant_key)
+    return 'Thank you for voting: ' + participant['email']
 
 if __name__ == '__main__':
   app.run(debug = True)

@@ -20,7 +20,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 # CONFIG
-md = model.Model(config.conf['HOST'], config.conf['PORT'])
+md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
 
 # Mock out some data input. Assume its parsed correctly from the form
 name = 'Favorite Color'
@@ -60,8 +60,8 @@ def check(predicate):
     raise Exception('Check failed')
 
 def testRedis():
-  client = redis.StrictRedis(host=config.conf['HOST'],
-                             port=config.conf['PORT'], db=0)
+  client = redis.StrictRedis(host=config.conf['REDIS_HOST'],
+                             port=config.conf['REDIS_PORT'], db=0)
   client.set('v1', 'test value 1')
   check(client.get('v1') == 'test value 1')
   client.delete('v1')

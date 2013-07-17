@@ -1,9 +1,11 @@
 {% extends 'layout.html' %}
 {% block content %}
 <h2>{{ data['poll']['name'] }}</h2>
-<form>
+<form method='post'>
   {% for choice in data['poll']['choices'] %}
-  <input type=radio name='choice' value='{{ loop.index0 }}'>{{ choice }}<br>
+  <input type=radio name='choice' value='{{ loop.index0 }}'
+  {% if data['participant']['choice'] == loop.index0  %} checked {% endif %} >
+    {{ choice }}<br>
   {% endfor %}
   <input type=submit value='Submit'>
 </form>
