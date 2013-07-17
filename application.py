@@ -76,6 +76,7 @@ def results(poll_key):
     results = md.getAllVotes(poll_key)
     page_data = {}
     page_data['poll'] = poll_data
+    page_data['num_participants'] = len(poll_data['participants'])
     page_data['stats'] = helpers.calcStats(results, len(poll_data['choices']))
     return render_template('results.html', data = page_data)
     return dumps(stats)

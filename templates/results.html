@@ -4,4 +4,5 @@
 {% for choice_key in data['stats'] %}
 <p>{{ data['poll']['choices'][choice_key] }}: {{ data['stats'][choice_key] }} %</p>
 {% endfor %}
+<p>This poll had {{ data['num_participants'] }} participants</p>
 {% endblock %}
