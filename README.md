@@ -21,5 +21,4 @@ Installation
 ------------
 In your virtualenv you must have the following installed:
 * [Flask](http://flask.pocoo.org/docs/installation/)
-* [requests](http://docs.python-requests.org/en/latest/user/install/#install)
 * [redis-py](https://pypi.python.org/pypi/redis/)
