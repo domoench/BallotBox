@@ -1,0 +1,7 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h2>{{ data['poll']['name'] }} Results</h2>
+{% for choice_key in data['stats'] %}
+<p>{{ data['poll']['choices'][choice_key] }}: {{ data['stats'][choice_key] }} %</p>
+{% endfor %}
+{% endblock %}
