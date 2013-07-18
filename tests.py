@@ -50,6 +50,7 @@ def runTests():
   testCalcStats()
   testGetAllVotes()
   testGetParticipantVoteLinks()
+  testGetPollProgress()
   testDeletePerson()
   # testSmtp()
   clearRedis()
@@ -251,6 +252,21 @@ def testGetParticipantVoteLinks():
     vote_link = pair['vote_link']
     check(vote_link[71:] in poll_data['participants'])
     check(vote_link[1:70] == poll_key)
+  clearRedis()
+
+def testGetPollProgress():
+  poll_key = md.createPoll(poll_data_raw)
+  # Insert
+  new_participants = []
+  for i in range(0, 50):
+    new_participants.append(str(i) + '@gmail.com')
+  md.addPollParticipants(poll_key, new_participants)
+  # Vote
+  part_keys = md.getPoll(poll_key)['participants'].keys()
+  for part_key in part_keys[:25]:
+    md.vote(part_key, random.randint(0, 3))
+  prog_tuple = md.getPollProgress(poll_key)
+  check(prog_tuple == (25, 52))
   clearRedis()
 
 def clearRedis():

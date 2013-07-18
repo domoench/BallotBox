@@ -71,6 +71,8 @@ def admin(poll_key):
     init_data = md.getInitiator(initiator_key)
     page_data = {}
     page_data['poll'] = poll_data
+    page_data['poll_key'] = poll_key
+    page_data['progress'] = md.getPollProgress(poll_key)
     return render_template('polladmin.html', data = page_data)
 
 @app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])

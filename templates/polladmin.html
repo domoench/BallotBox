@@ -13,6 +13,7 @@
   <form id='admin_close' method='post' action='{{data['poll_key']}}/close?key={{data['poll']['initiator']}}'>
     <fieldset>
       <legend>Close Poll Now</legend>
+      <p>{{data['progress'][0]}} out of {{data['progress'][1]}} participants voted.</p>
       <p>Poll Ends: {{ data['poll']['close'] }}</p>
       <input type='submit' value='Close'>
     </fieldset>

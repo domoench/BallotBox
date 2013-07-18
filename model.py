@@ -172,15 +172,12 @@ class Model:
     """
     part_data = self.getParticipant(part_key)
     poll_data = self.getPoll(part_data['poll'])
-    print 'poll_name', poll_data['name']
     num_choices = len(poll_data['choices'])
-    print 'num_choices', num_choices
     if(choice not in range(num_choices)):
       raise Exception('Invalid choice value ' + choice + ' provided to model.vote()')
     part_data['choice'] = choice
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
-    print part_data['email'] + ' voted.'
     # TODO: This would be a good place to check if all participant votes
 
   def addPollParticipants(self, poll_key, new_participants):
@@ -317,3 +314,25 @@ class Model:
       }
       result.append(participant_pair)
     return result
+
+  def getPollProgress(self, poll_key):
+    """
+    Return a tuple of the number of people who have voted and the number of
+    poll participants
+
+    Args:
+      poll_key: The poll's key string.
+
+    Returns:
+      A tuple of integers of the the following form:
+      (num_participants_voted, num_particpants)
+    """
+    poll_data = self.getPoll(poll_key)
+    part_keys = poll_data['participants'].keys()
+    num_participants = len(part_keys)
+    num_voted = 0
+    for part_key in part_keys:
+      part_data = self.getParticipant(part_key)
+      if part_data['voted']:
+        num_voted += 1
+    return (num_voted, num_participants)
