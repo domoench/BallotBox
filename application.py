@@ -44,28 +44,6 @@ def indexPage():
     # voting links and return them all here
     return dumps(md.getParticipantVoteLinks(poll_key))
 
-@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])
-def participantPollPage(poll_key, participant_key):
-  """
-  The participants' voting page. 'GET' generates the participant's ballot.
-  'PUT' submits and stores their vote.
-
-  # TODO: Add handler for invalid or expired poll or participant keys
-  """
-  if request.method == 'GET':
-    if participant_key[:5] != 'part_':
-      raise Exception('Invalid participant key.')
-    page_data = {}
-    page_data['participant'] = md.getParticipant(participant_key)
-    page_data['poll'] = md.getPoll(poll_key)
-    return render_template('vote.html', data = page_data)
-  else: # POST
-    # TODO: Reroute to a PUT request to store in Redis. More RESTful.
-    md.vote(participant_key, int(request.form['choice']))
-    participant = md.getParticipant(participant_key)
-    return 'Thank you for voting: ' + participant['email']
-    # TODO: Instead redirect back to the vote page but display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
-
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results(poll_key):
   # Check if poll is ongoing
@@ -78,9 +56,45 @@ def results(poll_key):
     page_data['poll'] = poll_data
     page_data['num_participants'] = len(poll_data['participants'])
     page_data['stats'] = helpers.calcStats(results, len(poll_data['choices']))
+    # TODO: Initiate deletion of participant and initator data here
     return render_template('results.html', data = page_data)
-    return dumps(stats)
     # TODO: Remember to handle the case of a tie somewhere
+
+@app.route('/<poll_key>/admin', methods = ['GET'])
+def admin(poll_key):
+  initiator_key = request.args.get('key')
+  poll_data = md.getPoll(poll_key)
+  if initiator_key != poll_data['initiator']:
+    return render_template('badinitiator.html')
+  # TODO: elif poll is over?
+  else:
+    init_data = md.getInitiator(initiator_key)
+    page_data = {}
+    page_data['poll'] = poll_data
+    return render_template('polladmin.html', data = page_data)
+
+@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])
+def participantPollPage(poll_key, participant_key):
+  """
+  The participants' voting page. 'GET' generates the participant's ballot.
+  'PUT' submits and stores their vote.
+
+  # TODO: Add handler for invalid or expired poll or participant keys
+  """
+  if request.method == 'GET':
+    print participant_key
+    if participant_key[:5] != 'part_':
+      raise Exception('Invalid participant key.')
+    page_data = {}
+    page_data['participant'] = md.getParticipant(participant_key)
+    page_data['poll'] = md.getPoll(poll_key)
+    return render_template('vote.html', data = page_data)
+  else: # POST
+    # TODO: Reroute to a PUT request to store in Redis. More RESTful.
+    md.vote(participant_key, int(request.form['choice']))
+    participant = md.getParticipant(participant_key)
+    return 'Thank you for voting: ' + participant['email']
+    # TODO: Instead redirect back to the vote page but display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
 
 if __name__ == '__main__':
   app.run(debug = True)
