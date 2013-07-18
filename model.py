@@ -189,12 +189,13 @@ class Model:
       new_participants: A List of well-formed participant email strings.
 
     Returns:
-      # TODO
+      A list of keys of the newly added participants
     """
     poll_data = self.getPoll(poll_key)
     participants = poll_data['participants']
     now_str = datetime.datetime.utcnow().isoformat()
 
+    new_part_keys = []
     for email in new_participants:
       # Add new participant key to the Poll
       new_part_key = helpers.generateKeyString(email, now_str, 'part_')
@@ -208,6 +209,8 @@ class Model:
         'choice': None
       }
       self.setParticipant(new_part_key, new_part_data_raw)
+      new_part_keys.append(new_part_key)
+    return new_part_keys
 
   def checkPollOngoing(self, poll_key):
     """

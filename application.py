@@ -98,6 +98,39 @@ def participantPollPage(poll_key, participant_key):
     return 'Thank you for voting: ' + participant['email']
     # TODO: Instead redirect back to the vote page but display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
 
+@app.route('/<poll_key>/add', method = ['POST'])
+def addParticipants(poll_key):
+  # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
+  initiator_key = request.args.get('key')
+  poll_data = md.getPoll(poll_key)
+  if initiator_key != poll_data['initiator']:
+    return render_template('badinitiator.html')
+  else:
+    return 'Adding Participants YAYYYYY! (Not actually though...)'
+    # Add Participants
+    # TODO replace the dummy new_particpants data with data passed in from
+    # the admin page form.
+    new_participants = []
+    for i in range(0, 10):
+      new_participants.append('dummy' + str(i) + '@gmail.com')
+    md.addPollParticipants(poll_key, new_participants)
+    # Notify them
+
+    # Redirect to admin page with alert that participants were added
+
+@app.route('/<poll_key>/close', method = ['POST'])
+def closePoll(poll_key):
+  # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
+  initiator_key = request.args.get('key')
+  poll_data = md.getPoll(poll_key)
+  if initiator_key != poll_data['initiator']:
+    return render_template('badinitiator.html')
+  else:
+    return 'Closing Poll YAYYYYY! (Not actually though...)'
+    # TODO
+    # Close Poll
+    # Redirect to results page
+
 if __name__ == '__main__':
   app.run(debug = True)
   # To run publicly: app.run(host = '0.0.0.0')

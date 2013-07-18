@@ -150,7 +150,7 @@ def testAddPollParticipants():
   new_participants = []
   for i in range(0, 300):
     new_participants.append(str(i) + '@gmail.com')
-  md.addPollParticipants(poll_key, new_participants)
+  new_part_keys = md.addPollParticipants(poll_key, new_participants)
   # Check
   poll_participants = md.getPoll(poll_key)['participants']
   for part_key in poll_participants.keys():
@@ -159,6 +159,7 @@ def testAddPollParticipants():
     check(part_data['poll'] == poll_key)
     check(part_data['voted'] == False)
     check(part_data['email'] == poll_participants[part_key])
+  check(len(new_part_keys) == len(new_participants))
   clearRedis()
 
 def testCheckPollOngoing():
