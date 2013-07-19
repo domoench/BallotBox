@@ -9,6 +9,7 @@ from flask import Flask, url_for, render_template, request
 import config
 import model
 import helpers
+import notify
 from json import dumps, loads
 
 app = Flask(__name__)
@@ -39,10 +40,11 @@ def indexPage():
       'initiator': 'david.moench@arc90.com'
     }
     poll_key = md.createPoll(test_poll_data)
+    poll_data = md.getPoll(poll_key)
 
-    # TODO: Send emails to all participants. Temporarily I will generate the
-    # voting links and return them all here
-    return dumps(md.getParticipantVoteLinks(poll_key))
+    # TODO: Send emails to all participants and the initiator. Temporarily I
+    # will generate the voting links and return them all here
+    return dumps(md.getParticipantVoteLinks(poll_data['participants'], poll_key))
 
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results(poll_key):
@@ -96,9 +98,10 @@ def admin(poll_key):
     page_data['poll'] = poll_data
     page_data['poll_key'] = poll_key
     page_data['progress'] = md.getPollProgress(poll_key)
+    page_data['domain_root'] = config.conf['DOMAIN_ROOT']
     return render_template('polladmin.html', data = page_data)
 
-@app.route('/<poll_key>/add', method = ['POST'])
+@app.route('/<poll_key>/add', methods = ['POST'])
 def addParticipants(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
   initiator_key = request.args.get('key')
@@ -106,22 +109,21 @@ def addParticipants(poll_key):
   if initiator_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
-    return 'Adding Participants YAYYYYY! (Not actually though...)'
     # Add Participants
-    # TODO replace the dummy new_particpants data with data passed in from
-    # the admin page form.
+    # TODO replace the dummy new_particpants data with data passed in from the admin page form.
     new_participants = []
     for i in range(0, 10):
       new_participants.append('dummy' + str(i) + '@gmail.com')
-    new_part_keys = md.addPollParticipants(poll_key, new_participants)
+    new_part_map = md.addPollParticipants(poll_key, new_participants)
     # Notify them
-    part_links_dict = md.getParticipantVoteLinks(poll_key)
-    for participant in part_links_dict:
+    new_part_links_dict = md.getParticipantVoteLinks(new_part_map, poll_key)
+    for participant in new_part_links_dict:
       notify.emailParticipant(participant)
+    return 'Added Participants YAYYYYY! (Not actually though...)'
 
     # Redirect to admin page with alert that participants were added
 
-@app.route('/<poll_key>/close', method = ['POST'])
+@app.route('/<poll_key>/close', methods = ['POST'])
 def closePoll(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
   initiator_key = request.args.get('key')

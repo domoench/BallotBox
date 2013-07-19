@@ -189,28 +189,34 @@ class Model:
       new_participants: A List of well-formed participant email strings.
 
     Returns:
-      A list of keys of the newly added participants
+      A map of key:email pairs for newly added participants. For example:
+      {
+        'part_247fd90ba860b79ef41e0770638c69bac98cbd94': 'alouie3@gmail.com',
+        'part_0c9a1081760990bcc89ca94bb6bdd5710328f3ef': 'lluna@gmail.com'
+      }
     """
     poll_data = self.getPoll(poll_key)
     participants = poll_data['participants']
+    part_emails = participants.values()
     now_str = datetime.datetime.utcnow().isoformat()
 
-    new_part_keys = []
+    new_part_map = {}
     for email in new_participants:
-      # Add new participant key to the Poll
-      new_part_key = helpers.generateKeyString(email, now_str, 'part_')
-      participants[new_part_key] = email
-      self.client.set(poll_key, json.dumps(poll_data))
-      # Create new participant record
-      new_part_data_raw = {
-        'email':  email,
-        'poll': poll_key,
-        'voted': False,
-        'choice': None
-      }
-      self.setParticipant(new_part_key, new_part_data_raw)
-      new_part_keys.append(new_part_key)
-    return new_part_keys
+      if email not in part_emails: # No duplicate emails
+        # Add new participant key to the Poll
+        new_part_key = helpers.generateKeyString(email, now_str, 'part_')
+        participants[new_part_key] = email
+        self.client.set(poll_key, json.dumps(poll_data))
+        # Create new participant record
+        new_part_data_raw = {
+          'email':  email,
+          'poll': poll_key,
+          'voted': False,
+          'choice': None
+        }
+        self.setParticipant(new_part_key, new_part_data_raw)
+        new_part_map[new_part_key] = email
+    return new_part_map
 
   def checkPollOngoing(self, poll_key):
     """
@@ -287,12 +293,17 @@ class Model:
                       'participant or initiator record.')
     self.client.delete(key)
 
-  def getParticipantVoteLinks(self, poll_key):
+  def getParticipantVoteLinks(self, participants, poll_key):
     """
-    Gets a list of participant email/vote-link pairs. For example:
+    Gets a list of participant email/vote-link pairs.
 
     Args:
-      poll_key: The poll's key string.
+      poll_key: The key string for the poll to which the participants belong.
+      participants: A map of participant keys to emails. For example:
+        {
+          'part_247fd90ba860b79ef41e0770638c69bac98cbd94': 'alouie3@gmail.com',
+          'part_0c9a1081760990bcc89ca94bb6bdd5710328f3ef': 'lluna@gmail.com'
+        }
 
     Returns:
       A list of participant email/vote-link pair dictionaries. For example:
@@ -307,12 +318,10 @@ class Model:
         }
       ]
     """
-    poll_data = self.getPoll(poll_key)
-    part_map = poll_data['participants']
     result = []
-    for part_key in part_map.keys():
+    for part_key in participants.keys():
       participant_pair = {
-        'email': part_map[part_key],
+        'email': participants[part_key],
         'vote_link': '/' + poll_key + '/' + part_key
       }
       result.append(participant_pair)

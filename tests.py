@@ -26,7 +26,6 @@ md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
 name = 'Favorite Color'
 choices = ['Red', 'Blue', 'Green', 'Teal']
 close = datetime.datetime(2015, 7, 11, 4, 0).isoformat()
-print close
 participants = ['alouie@gmail.com', 'lluna@gmail.com']
 poll_type = 'plurality'
 initiator = 'david.moench@arc90.com'
@@ -246,13 +245,21 @@ def testGetParticipantVoteLinks():
   new_participants = []
   for i in range(0, 100):
     new_participants.append(str(i) + '@gmail.com')
-  md.addPollParticipants(poll_key, new_participants)
+  added = md.addPollParticipants(poll_key, new_participants)
+  check(len(added) == 100)
   poll_data = md.getPoll(poll_key)
-  results = md.getParticipantVoteLinks(poll_key)
+  results = md.getParticipantVoteLinks(poll_data['participants'], poll_key)
   for pair in results:
     vote_link = pair['vote_link']
     check(vote_link[71:] in poll_data['participants'])
     check(vote_link[1:70] == poll_key)
+  # Test Prevention of adding duplicates
+  duplicate_participants = []
+  for i in range(0, 30):
+    new_participants.append(str(i) + '@gmail.com')
+  added = md.addPollParticipants(poll_key, new_participants)
+  check(len(added) == 0)
+
   clearRedis()
 
 def testGetPollProgress():

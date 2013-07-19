@@ -3,7 +3,8 @@
 {% block content %}
 <h2>{{ data['poll']['name'] }}: Admin Page</h2>
 <div class='content admin_page'>
-  <form id='admin_add' method='post' action='{{data['poll_key']}}/add?key={{data['poll']['initiator']}}'>
+  <form id='admin_add' method='post'
+    action='{{data['domain_root']}}/{{data['poll_key']}}/add?key={{data['poll']['initiator']}}'>
     <fieldset>
       <legend>Add Participants</legend>
       New Particpant Emails: <input type='text'><br>
