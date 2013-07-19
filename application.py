@@ -60,21 +60,6 @@ def results(poll_key):
     return render_template('results.html', data = page_data)
     # TODO: Remember to handle the case of a tie somewhere
 
-@app.route('/<poll_key>/admin', methods = ['GET'])
-def admin(poll_key):
-  initiator_key = request.args.get('key')
-  poll_data = md.getPoll(poll_key)
-  if initiator_key != poll_data['initiator']:
-    return render_template('badinitiator.html')
-  # TODO: elif poll is over?
-  else:
-    init_data = md.getInitiator(initiator_key)
-    page_data = {}
-    page_data['poll'] = poll_data
-    page_data['poll_key'] = poll_key
-    page_data['progress'] = md.getPollProgress(poll_key)
-    return render_template('polladmin.html', data = page_data)
-
 @app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])
 def participantPollPage(poll_key, participant_key):
   """
@@ -98,6 +83,21 @@ def participantPollPage(poll_key, participant_key):
     return 'Thank you for voting: ' + participant['email']
     # TODO: Instead redirect back to the vote page but display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
 
+@app.route('/<poll_key>/admin', methods = ['GET'])
+def admin(poll_key):
+  initiator_key = request.args.get('key')
+  poll_data = md.getPoll(poll_key)
+  if initiator_key != poll_data['initiator']:
+    return render_template('badinitiator.html')
+  # TODO: elif poll is over?
+  else:
+    init_data = md.getInitiator(initiator_key)
+    page_data = {}
+    page_data['poll'] = poll_data
+    page_data['poll_key'] = poll_key
+    page_data['progress'] = md.getPollProgress(poll_key)
+    return render_template('polladmin.html', data = page_data)
+
 @app.route('/<poll_key>/add', method = ['POST'])
 def addParticipants(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
@@ -113,8 +113,10 @@ def addParticipants(poll_key):
     new_participants = []
     for i in range(0, 10):
       new_participants.append('dummy' + str(i) + '@gmail.com')
-    md.addPollParticipants(poll_key, new_participants)
+    new_part_keys = md.addPollParticipants(poll_key, new_participants)
     # Notify them
+    for key in new_part_keys:
+      notify.emailParticipant(key)
 
     # Redirect to admin page with alert that participants were added
 
