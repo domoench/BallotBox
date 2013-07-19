@@ -289,13 +289,13 @@ class Model:
 
   def getParticipantVoteLinks(self, poll_key):
     """
-    Gets a list of email/vote-link pairs for each participant. For example:
+    Gets a list of participant email/vote-link pairs. For example:
 
     Args:
       poll_key: The poll's key string.
 
     Returns:
-      A list of email/vote-link pairs for each participant. For example:
+      A list of participant email/vote-link pair dictionaries. For example:
       [
         {
           'email': 'alouie@gmail.com',
@@ -304,7 +304,7 @@ class Model:
         {
           'email': 'lluna@gmail.com',
           'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_9b55ce38e1074928830b37bda5ddf325ac70a3d7
-        },
+        }
       ]
     """
     poll_data = self.getPoll(poll_key)

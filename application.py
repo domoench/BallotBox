@@ -115,8 +115,9 @@ def addParticipants(poll_key):
       new_participants.append('dummy' + str(i) + '@gmail.com')
     new_part_keys = md.addPollParticipants(poll_key, new_participants)
     # Notify them
-    for key in new_part_keys:
-      notify.emailParticipant(key)
+    part_links_dict = md.getParticipantVoteLinks(poll_key)
+    for participant in part_links_dict:
+      notify.emailParticipant(participant)
 
     # Redirect to admin page with alert that participants were added
 

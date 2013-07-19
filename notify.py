@@ -3,18 +3,21 @@
 """
 import smtplib
 
-def emailParticipants(poll_key):
-  """
-  Email all participants of the given poll their ballot page links.
-  """
-  # TODO
-
-def emailParticipant(participant_key):
+def emailParticipant(participant):
   """
   Email the given participant with their ballot link and instructions on how
   to vote.
+
+  Args:
+    participant: A dictionary representing a participants email and ballot
+      link. For example:
+      {
+        'email': 'alouie@gmail.com',
+        'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_247fd90ba860b79ef41e0770638c69bac98cbd94
+      }
   """
-  # TODO
+  # TODO Implement real emailing
+  print participant['email'] + 'has been emailed (not really).'
 
 def emailInitiator(initiator_key):
   """
