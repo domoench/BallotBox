@@ -29,21 +29,28 @@ def calcStats(vote_list, num_choices):
 
   Args:
     vote_list: A list where each element is one participant's integer choice.
-      For example: [0, 3, 2, 1, 1, 0, 1, 0, 1, 3]
-    num_choices: The number of choices in the vote.
+      For example: [0, 3, 2, 1, 1, 0, 1, 0, 1, 3]. Note, an ongoing poll may
+      have elements that are None for participants who didn't vote.
+    num_choices: The number of choices in the vote. Does not include 'None'.
 
   Returns:
     A dictionary mapping each choice to its percentage of the total vote. For
-    example: {0: 30, 1: 40, 2: 10, 3: 20}
+    example: {0: 30, 1: 40, 2: 10, 3: 20, 'None': 0}
   """
   num_votes = len(vote_list)
-  stats = {}
+  stats = {'None': 0}
   for i in range(0, num_choices):
     stats[i] = 0
   # Tally up votes
   for choice in vote_list:
-    stats[choice] += 1
+    if choice == None:
+      stats['None'] += 1
+    else:
+      stats[choice] += 1
   # Convert to percentage
   for key in stats:
-    stats[key] = (stats[key] / float(num_votes)) * 100
+    if key == 'None':
+      pass
+    else:
+      stats[key] = (stats[key] / float(num_votes)) * 100
   return stats

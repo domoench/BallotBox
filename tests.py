@@ -190,9 +190,11 @@ def testCheckPollOngoing():
   clearRedis()
 
 def testCalcStats():
-  results = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
-  expected = {0: 30, 1: 40, 2: 10, 3: 20}
-  check(results == expected)
+  results1 = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
+  expected1 = {0: 30, 1: 40, 2: 10, 3: 20, 'None': 0}
+  check(results1 == expected1)
+  results2 = helpers.calcStats([0, 1, 2, None, None], 3)
+  expected2 = {0: 20, 1: 20, 2: 20, 'None': 40}
 
 # This basically simulates the lifecycle of an entire vote
 def testGetAllVotes():

@@ -5,6 +5,7 @@ import redis
 import datetime
 import helpers
 import json
+import config # TODO: Remove this when temporary log file notification is no longer used
 
 class Model:
   def __init__(self, host, port):
@@ -178,6 +179,10 @@ class Model:
     part_data['choice'] = choice
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
+    # TODO: Remove the following notification after the demo
+    f = open(config.conf['LOG_FILE'], 'a')
+    f.write('Participant ' + part_data['email'] + ' voted.\n')
+    f.close()
     # TODO: This would be a good place to check if all participant votes
 
   def addPollParticipants(self, poll_key, new_participants):
@@ -272,10 +277,6 @@ class Model:
       A list where each element is one participant's integer choice
     """
     poll_data = self.getPoll(poll_key)
-    if poll_data['ongoing']:
-      raise Exception('Can\'t aggregate the votes of an ongoing poll.')
-      # TODO: Actually, yes you can. For example, the administrator closes the poll
-      # early and calculate the results even though not everyone voted. Need to make this possible.
     part_keys = poll_data['participants']
     results = []
     for part_key in part_keys:

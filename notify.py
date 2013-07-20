@@ -38,7 +38,7 @@ def emailInitiator(init_email, init_key, poll_key):
   # TODO
   f = open(config.conf['LOG_FILE'], 'a')
   f.write('Initiator ' + init_email + ' can administrate at: </' + poll_key +
-          '/admin?key=' + init_key)
+          '/admin?key=' + init_key + '>\n')
   f.close()
 
 def emailResults(poll_key):
