@@ -146,7 +146,7 @@ def closePoll(poll_key):
     md.closePoll(poll_key)
     # TODO: Notify people
     f = open(config.conf['LOG_FILE'], 'a')
-    f.write('Poll \'' + poll_data['name'] + '\' closed.')
+    f.write('Poll \'' + poll_data['name'] + '\' closed.\n')
     f.close()
     # TODO: Redirect to results page
     return 'Closing Poll YAYYYYY! (Not actually though...)'
