@@ -135,10 +135,14 @@ def closePoll(poll_key):
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
-    return 'Closing Poll YAYYYYY! (Not actually though...)'
-    # TODO
     # Close Poll
-    # Redirect to results page
+    md.closePoll(poll_key)
+    # TODO: Notify people
+    f = open(config.conf['LOG_FILE'], 'a')
+    f.write('Poll \'' + poll_data['name'] + '\' closed.')
+    f.close()
+    # TODO: Redirect to results page
+    return 'Closing Poll YAYYYYY! (Not actually though...)'
 
 if __name__ == '__main__':
   app.run(debug = True)

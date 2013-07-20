@@ -274,6 +274,8 @@ class Model:
     poll_data = self.getPoll(poll_key)
     if poll_data['ongoing']:
       raise Exception('Can\'t aggregate the votes of an ongoing poll.')
+      # TODO: Actually, yes you can. For example, the administrator closes the poll
+      # early and calculate the results even though not everyone voted. Need to make this possible.
     part_keys = poll_data['participants']
     results = []
     for part_key in part_keys:

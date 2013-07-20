@@ -11,7 +11,8 @@
       <input type='submit' value='Add'>
     </fieldset>
   </form>
-  <form id='admin_close' method='post' action='{{data['poll_key']}}/close?key={{data['poll']['initiator']}}'>
+  <form id='admin_close' method='post'
+    action='{{data['domain_root']}}/{{data['poll_key']}}/close?key={{data['poll']['initiator']}}'>
     <fieldset>
       <legend>Close Poll Now</legend>
       <p>{{data['progress'][0]}} out of {{data['progress'][1]}} participants voted.</p>
