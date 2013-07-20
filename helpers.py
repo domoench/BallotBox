@@ -49,8 +49,5 @@ def calcStats(vote_list, num_choices):
       stats[choice] += 1
   # Convert to percentage
   for key in stats:
-    if key == 'None':
-      pass
-    else:
-      stats[key] = (stats[key] / float(num_votes)) * 100
+    stats[key] = (stats[key] / float(num_votes)) * 100
   return stats

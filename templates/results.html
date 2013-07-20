@@ -2,8 +2,8 @@
 
 {% block content %}
 <h2>{{ data['poll']['name'] }} Results</h2>
-{% for choice_key in data['stats'] %}
-  <p>{{ data['poll']['choices'][choice_key] }}: {{ data['stats'][choice_key] }} %</p>
+{% for choice in data['percents_readout'] %}
+  <p>{{ choice }}: {{ data['percents_readout'][choice] }} %</p>
 {% endfor %}
 <p>This poll had {{ data['num_participants'] }} participants</p>
 {% endblock %}

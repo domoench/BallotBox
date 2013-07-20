@@ -59,10 +59,17 @@ def results(poll_key):
     return 'Results are not available. \'' + poll_data['name'] + '\' is ongoing.'
   else:
     results = md.getAllVotes(poll_key)
+    percents = helpers.calcStats(results, len(poll_data['choices']))
+    percents_readout = {}
+    for choice in percents.keys():
+      if choice == 'None':
+        percents_readout['None'] = percents['None']
+      else:
+        percents_readout[poll_data['choices'][choice]] = percents[choice]
     page_data = {}
     page_data['poll'] = poll_data
     page_data['num_participants'] = len(poll_data['participants'])
-    page_data['stats'] = helpers.calcStats(results, len(poll_data['choices']))
+    page_data['percents_readout'] = percents_readout
     # TODO: Initiate deletion of participant and initator data here
     return render_template('results.html', data = page_data)
     # TODO: Remember to handle the case of a tie somewhere
