@@ -22,7 +22,7 @@ def emailParticipant(participant):
   """
   # TODO Implement real emailing
   f = open(config.conf['LOG_FILE'], 'a')
-  f.write('participant' + participant['email'] + ' can vote at: <' +
+  f.write('Participant ' + participant['email'] + ' can vote at: <' +
           participant['vote_link'] + '>\n')
   f.close()
 
@@ -37,7 +37,7 @@ def emailInitiator(init_email, init_key, poll_key):
   """
   # TODO
   f = open(config.conf['LOG_FILE'], 'a')
-  f.write('initiator' + init_email + ' can administrate at: </' + poll_key +
+  f.write('Initiator ' + init_email + ' can administrate at: </' + poll_key +
           '/admin?key=' + init_key)
   f.close()
 

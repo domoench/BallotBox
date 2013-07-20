@@ -92,13 +92,13 @@ def participantPollPage(poll_key, participant_key):
 
 @app.route('/<poll_key>/admin', methods = ['GET'])
 def admin(poll_key):
-  initiator_key = request.args.get('key')
+  init_key = request.args.get('key')
   poll_data = md.getPoll(poll_key)
-  if initiator_key != poll_data['initiator']:
+  if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   # TODO: elif poll is over?
   else:
-    init_data = md.getInitiator(initiator_key)
+    init_data = md.getInitiator(init_key)
     page_data = {}
     page_data['poll'] = poll_data
     page_data['poll_key'] = poll_key
@@ -109,9 +109,9 @@ def admin(poll_key):
 @app.route('/<poll_key>/add', methods = ['POST'])
 def addParticipants(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
-  initiator_key = request.args.get('key')
+  init_key = request.args.get('key')
   poll_data = md.getPoll(poll_key)
-  if initiator_key != poll_data['initiator']:
+  if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
     # Add Participants
@@ -124,16 +124,15 @@ def addParticipants(poll_key):
     new_part_links_dict = md.getParticipantVoteLinks(new_part_map, poll_key)
     for participant in new_part_links_dict:
       notify.emailParticipant(participant)
+    # TODO: Redirect to admin page with alert that participants were added
     return 'Added Participants YAYYYYY! (Not actually though...)'
-
-    # Redirect to admin page with alert that participants were added
 
 @app.route('/<poll_key>/close', methods = ['POST'])
 def closePoll(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
-  initiator_key = request.args.get('key')
+  init_key = request.args.get('key')
   poll_data = md.getPoll(poll_key)
-  if initiator_key != poll_data['initiator']:
+  if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
     return 'Closing Poll YAYYYYY! (Not actually though...)'
