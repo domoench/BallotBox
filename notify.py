@@ -1,7 +1,11 @@
 """
   This module handles emailing participants and initiators
+
+  TODO: I'm temporarily logging to the log.txt file. Eventually need to
+        replace this with emailing.
 """
 import smtplib
+import config
 
 def emailParticipant(participant):
   """
@@ -13,26 +17,29 @@ def emailParticipant(participant):
       link. For example:
       {
         'email': 'alouie@gmail.com',
-        'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_247fd90ba860b79ef41e0770638c69bac98cbd94
+        'vote_link': '/poll_f6a1fd2b72d5a5a9ab353e9332436729e75c2855cb3cf4a67fb9d70408b893bb/part_b8618807445dc133e507518a053aadc6fc75dd998f24b2dc9350c5b659c6efc6
       }
   """
   # TODO Implement real emailing
-  print participant['email'] + ' has been emailed (not really).'
+  f = open(config.conf['LOG_FILE'], 'a')
+  f.write('participant' + participant['email'] + ' can vote at: <' +
+          participant['vote_link'] + '>\n')
+  f.close()
 
-def emailInitiator(initiator):
+def emailInitiator(init_email, init_key, poll_key):
   """
   Email the poll's initiator with a link to the poll administration page.
 
   Args:
-    initiator: A dictionary representing an initiator's email and ballot
-      link. For example:
-      {
-        'email': 'alouie@gmail.com',
-        'vote_link': '/poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef/part_247fd90ba860b79ef41e0770638c69bac98cbd94
-      }
+    init_email: The initiator's email
+    init_key: The initiator's key string
+    poll_key: The poll's key string
   """
   # TODO
-  print initiator['email'] + ' has been emailed (not really).'
+  f = open(config.conf['LOG_FILE'], 'a')
+  f.write('initiator' + init_email + ' can administrate at: </' + poll_key +
+          '/admin?key=' + init_key)
+  f.close()
 
 def emailResults(poll_key):
   """

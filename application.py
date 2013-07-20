@@ -41,9 +41,14 @@ def indexPage():
     }
     poll_key = md.createPoll(test_poll_data)
     poll_data = md.getPoll(poll_key)
-
-    # TODO: Send emails to all participants and the initiator. Temporarily I
-    # will generate the voting links and return them all here
+    # Notify the partiicpants and initiator
+    part_link_list = md.getParticipantVoteLinks(poll_data['participants'], poll_key)
+    for part_link in part_link_list:
+      notify.emailParticipant(part_link)
+    init_key = poll_data['initiator']
+    init_data = md.getInitiator(init_key)
+    notify.emailInitiator(init_data['email'], init_key, poll_key)
+    # TODO: Temporary return value. Change to redirect.
     return dumps(md.getParticipantVoteLinks(poll_data['participants'], poll_key))
 
 @app.route('/<poll_key>/results', methods = ['GET'])
