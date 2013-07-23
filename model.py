@@ -38,13 +38,12 @@ class Model:
     now = datetime.datetime.utcnow()
     close = datetime.datetime.strptime(poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
     ongoing = close - now > datetime.timedelta(minutes = 0)
-    init_key = helpers.generateKeyString(poll_data_raw['initiator'], now.isoformat(), 'init_')
-
+    init_key = helpers.generateKeyString(poll_data_raw['initiator'],
+                                         now.isoformat(), 'init_')
     part_map = {}
     for email in poll_data_raw['participants']:
       part_key = helpers.generateKeyString(email, now.isoformat(), 'part_')
       part_map[part_key] = email
-
     poll_data_processed = {
       'name': poll_data_raw['name'],
       'choices': poll_data_raw['choices'],
@@ -351,3 +350,7 @@ class Model:
       if part_data['voted']:
         num_voted += 1
     return (num_voted, num_participants)
+
+  def clearRedis(self):
+    for key in self.client.keys('*'):
+      self.client.delete(key)

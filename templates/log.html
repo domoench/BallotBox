@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <h2>Log</h2>
+  <a href='{{ url_for('clearLog') }}'>Clear Log And Redis</a>
+  {% for line in data %}
+  <div class='log-statement'>
+    <p class='message'>{{ line['message'] }}</p>
+    <ul class='links'>
+      {% for link in line['links'] %}
+      <li><a href='{{ link['href'] }}'>{{ link['text'] }}</a>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+{% endblock %}

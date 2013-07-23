@@ -5,7 +5,7 @@ Author: David Moench
 Overview: A polling application.
 """
 
-from flask import Flask, url_for, render_template, request
+from flask import Flask, url_for, render_template, request, redirect
 import config
 import model
 import helpers
@@ -145,11 +145,38 @@ def closePoll(poll_key):
     # Close Poll
     md.closePoll(poll_key)
     # TODO: Notify people
-    f = open(config.conf['LOG_FILE'], 'a')
-    f.write('Poll \'' + poll_data['name'] + '\' closed.\n')
-    f.close()
+    message = 'Poll \'' + poll_data['name'] + '\' + closed.\n'
+    results_path = '/' + poll_key + '/results'
+    log_stmt = {
+      'message': message,
+      'links': [
+        {
+          'href': config.conf['DOMAIN_ROOT'] + results_path,
+          'text': 'See Results'
+        }
+      ]
+    }
+    with open(config.conf['LOG_FILE'], 'a') as fh:
+      fh.write(dumps(log_stmt) + '\n')
     # TODO: Redirect to results page
     return 'Closing Poll YAYYYYY! (Not actually though...)'
+
+# TODO: Remove this route after emailing is implemented
+@app.route('/log', methods = ['GET'])
+def logDisplay():
+  log_lines = []
+  with open('log.txt', 'r') as fh:
+    for line in fh:
+      line_dict = loads(line)
+      log_lines.append(line_dict)
+  return render_template('log.html', data = log_lines)
+
+# TODO: Remove this route after emailing is implemented
+@app.route('/clearlog', methods = ['GET'])
+def clearLog():
+  md.clearRedis()
+  open('log.txt', 'w').close()
+  return redirect(url_for('logDisplay'))
 
 if __name__ == '__main__':
   app.run(debug = True)

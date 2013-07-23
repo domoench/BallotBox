@@ -46,13 +46,14 @@ def runTests():
   testAddPollParticipants()
   testVote()
   testCheckPollOngoing()
+  # testClosePoll() TODO
   testCalcStats()
   testGetAllVotes()
   testGetParticipantVoteLinks()
   testGetPollProgress()
   testDeletePerson()
   # testSmtp()
-  clearRedis()
+  md.clearRedis()
   print 'All tests passed!'
 
 def check(predicate):
@@ -82,7 +83,7 @@ def testCreateAndGetInitiator():
   init_data = md.getInitiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
-  clearRedis()
+  md.clearRedis()
 
 def testCreateAndGetParticipant():
   now_str = datetime.datetime.utcnow().isoformat()
@@ -101,7 +102,7 @@ def testCreateAndGetParticipant():
   check(part_data['poll'] == poll_key)
   check(part_data['voted'] == True)
   check(part_data['choice'] == 1)
-  clearRedis()
+  md.clearRedis()
 
 def testCreateAndGetPoll():
   poll_key = md.createPoll(poll_data_raw)
@@ -129,7 +130,7 @@ def testCreateAndGetPoll():
   check(poll_data == md.getPoll(init_data['poll']))
   # Look up poll from participant
   check(poll_data == md.getPoll(part_data['poll']))
-  clearRedis()
+  md.clearRedis()
 
 def testVote():
   poll_key = md.createPoll(poll_data_raw)
@@ -141,7 +142,7 @@ def testVote():
     check(choice == 0)
     check(participant['voted'] == True)
     check(poll_data['choices'][choice] == poll_data_raw['choices'][choice])
-  clearRedis()
+  md.clearRedis()
 
 def testAddPollParticipants():
   poll_key = md.createPoll(poll_data_raw)
@@ -159,7 +160,7 @@ def testAddPollParticipants():
     check(part_data['voted'] == False)
     check(part_data['email'] == poll_participants[part_key])
   check(len(new_part_keys) == len(new_participants))
-  clearRedis()
+  md.clearRedis()
 
 def testCheckPollOngoing():
   # Ongoing
@@ -187,7 +188,7 @@ def testCheckPollOngoing():
   poll3_data = md.getPoll(poll3_key)
   check(poll3_data['ongoing'] == False)
 
-  clearRedis()
+  md.clearRedis()
 
 def testCalcStats():
   results1 = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
@@ -217,7 +218,7 @@ def testGetAllVotes():
   for key in results:
     total_percent += results[key]
   check(math.fabs(total_percent - 100.0) < 0.00001)
-  clearRedis()
+  md.clearRedis()
 
 def testDeletePerson():
   poll_key = md.createPoll(poll_data_raw)
@@ -227,7 +228,7 @@ def testDeletePerson():
   md.deletePerson(md.getPoll(poll_key)['initiator'])
   # Only the poll record remains
   check(len(md.client.keys('*')) == 1)
-  clearRedis()
+  md.clearRedis()
 
 def testSmtp():
   from_addr = 'david.moench@arc90.com'
@@ -262,7 +263,7 @@ def testGetParticipantVoteLinks():
   added = md.addPollParticipants(poll_key, new_participants)
   check(len(added) == 0)
 
-  clearRedis()
+  md.clearRedis()
 
 def testGetPollProgress():
   poll_key = md.createPoll(poll_data_raw)
@@ -277,12 +278,7 @@ def testGetPollProgress():
     md.vote(part_key, random.randint(0, 3))
   prog_tuple = md.getPollProgress(poll_key)
   check(prog_tuple == (25, 52))
-  clearRedis()
-
-def clearRedis():
-  for key in md.client.keys('*'):
-    md.client.delete(key)
-  check(len(md.client.keys('*')) == 0)
+  md.clearRedis()
 
 if __name__ == '__main__':
   runTests()

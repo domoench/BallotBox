@@ -1,5 +1,7 @@
 """
 BallotBox configuration values
+
+TODO: Figure out if there is a python-idiomadic way to accomplish this
 """
 
 conf = {

@@ -6,6 +6,7 @@
 """
 import smtplib
 import config
+from json import dumps
 
 def emailParticipant(participant):
   """
@@ -21,10 +22,18 @@ def emailParticipant(participant):
       }
   """
   # TODO Implement real emailing
-  f = open(config.conf['LOG_FILE'], 'a')
-  f.write('Participant ' + participant['email'] + ' can vote at: <' +
-          participant['vote_link'] + '>\n')
-  f.close()
+  message = 'Participant ' + participant['email'] + ' created.'
+  log_stmt = {
+    'message': message,
+    'links': [
+      {
+        'href': config.conf['DOMAIN_ROOT'] + participant['vote_link'],
+        'text': 'Vote'
+      }
+    ]
+  }
+  with open(config.conf['LOG_FILE'], 'a') as fh:
+    fh.write(dumps(log_stmt) + '\n')
 
 def emailInitiator(init_email, init_key, poll_key):
   """
@@ -36,10 +45,19 @@ def emailInitiator(init_email, init_key, poll_key):
     poll_key: The poll's key string
   """
   # TODO
-  f = open(config.conf['LOG_FILE'], 'a')
-  f.write('Initiator ' + init_email + ' can administrate at: </' + poll_key +
-          '/admin?key=' + init_key + '>\n')
-  f.close()
+  message = 'Initiator ' + init_email + ' created.'
+  admin_link_path = '/' + poll_key + '/admin?key=' + init_key
+  log_stmt = {
+    'message': message,
+    'links': [
+      {
+        'href': config.conf['DOMAIN_ROOT'] + admin_link_path,
+        'text': 'Administrate'
+      }
+    ]
+  }
+  with open(config.conf['LOG_FILE'], 'a') as fh:
+    fh.write(dumps(log_stmt) + '\n')
 
 def emailResults(poll_key):
   """
