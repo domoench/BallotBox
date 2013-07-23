@@ -83,12 +83,20 @@ def participantPollPage(poll_key, participant_key):
   # TODO: Add handler for invalid or expired poll or participant keys
   """
   if request.method == 'GET':
-    print participant_key
-    if participant_key[:5] != 'part_':
+    poll_data = md.getPoll(poll_key)
+    # Check poll is ongoing
+    if not md.checkPollOngoing(poll_key):
+      page_data = {}
+      page_data['poll_key'] = poll_key
+      page_data['poll'] = poll_data
+      page_data['domain_root'] = config.conf['DOMAIN_ROOT']
+      return render_template('pollclosed.html', data = page_data)
+    # Check valid participant
+    if participant_key not in poll_data['participants'].keys():
       raise Exception('Invalid participant key.')
     page_data = {}
     page_data['participant'] = md.getParticipant(participant_key)
-    page_data['poll'] = md.getPoll(poll_key)
+    page_data['poll'] = poll_data
     return render_template('vote.html', data = page_data)
   else: # POST
     # TODO: Reroute to a PUT request to store in Redis. More RESTful.
@@ -167,8 +175,9 @@ def logDisplay():
   log_lines = []
   with open('log.txt', 'r') as fh:
     for line in fh:
-      line_dict = loads(line)
-      log_lines.append(line_dict)
+      if line != None:
+        line_dict = loads(line)
+        log_lines.append(line_dict)
   return render_template('log.html', data = log_lines)
 
 # TODO: Remove this route after emailing is implemented
