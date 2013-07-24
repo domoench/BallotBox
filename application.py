@@ -113,6 +113,9 @@ def participantPollPage(poll_key, participant_key):
 def admin(poll_key):
   init_key = request.args.get('key')
   poll_data = md.getPoll(poll_key)
+  if poll_data is None:
+    # TODO: Handle better
+    return 'Sorry, that poll doesn\'t exist!'
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   # Check poll is ongoing

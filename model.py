@@ -129,11 +129,15 @@ class Model:
       poll_key: The poll's key string.
 
     Returns:
-      A python dictionary of the record.
+      A python dictionary of the record. Or None if no record found.
     """
     if poll_key[:5] != 'poll_':
       raise Exception('Incorrect key passed to getPoll(): ' + poll_key)
-    return loads(self.client.get(poll_key))
+    result = self.client.get(poll_key)
+    if result is not None:
+      return loads(self.client.get(poll_key))
+    else:
+      return None
 
   def getParticipant(self, part_key):
     """

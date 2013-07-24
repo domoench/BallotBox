@@ -106,6 +106,9 @@ def testCreateAndGetParticipant():
   md.clearRedis()
 
 def testCreateAndGetPoll():
+  # Fake Poll
+  check(md.getPoll('poll_fakeyfake') == None)
+  # Real Poll
   poll_key = md.createPoll(poll_data_raw)
   poll_data = md.getPoll(poll_key)
   check(poll_data['name'] == name)
