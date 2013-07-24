@@ -53,8 +53,8 @@ def indexPage():
     log_stmt = {'message': message, 'links': None}
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
-    # TODO: Change to redirect.
-    return 'Poll \'' + poll_data['name'] + '\' created.'
+    # TODO: Change to redirect to admin page after testing is complete.
+    return redirect(url_for('logDisplay'))
 
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results(poll_key):
