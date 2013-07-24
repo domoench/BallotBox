@@ -136,8 +136,7 @@ def testVote():
   poll_key = md.createPoll(poll_data_raw)
   poll_data = md.getPoll(poll_key)
   for part_key in poll_data['participants']:
-    md.vote(part_key, 0)
-    participant = md.getParticipant(part_key)
+    participant = md.vote(part_key, 0)
     choice = participant['choice']
     check(choice == 0)
     check(participant['voted'] == True)
@@ -176,8 +175,6 @@ def testCheckPollOngoing():
   for part_key in poll2_part_keys:
     md.vote(part_key, 0)
   check(not md.checkPollOngoing(poll2_key))
-  poll2_data = md.getPoll(poll2_key)
-  check(poll2_data['ongoing'] == False)
 
   # Ongoing, but time is up
   poll3_key = md.createPoll(poll_data_raw)
@@ -185,9 +182,6 @@ def testCheckPollOngoing():
   poll3_data['close'] = datetime.datetime(1987, 5, 20, 4, 0).isoformat()
   md.client.set(poll3_key, dumps(poll3_data))
   check(not md.checkPollOngoing(poll3_key))
-  poll3_data = md.getPoll(poll3_key)
-  check(poll3_data['ongoing'] == False)
-
   md.clearRedis()
 
 def testCalcStats():

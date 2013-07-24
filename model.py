@@ -170,6 +170,9 @@ class Model:
     Args:
       part_key: The participant's key string.
       choice: An integer offset into the parent poll's 'choices' list
+
+    Return:
+      The participant data dictionary.
     """
     part_data = self.getParticipant(part_key)
     poll_key = part_data['poll']
@@ -180,17 +183,15 @@ class Model:
     part_data['choice'] = choice
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
-    # Check if this was the last vote needed
-    if not self.checkPollOngoing(poll_key):
-      pass
-      # TODO: Seperate closePoll out of checkPollOngoing. That way you can check if its on going
-      # and if so call closePoll()
     # TODO: Remove the following notification after the demo
     message = 'Participant ' + part_data['email'] + ' voted.'
     log_stmt = {'message': message, 'links': None}
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
-    # TODO: This would be a good place to check if all participant votes
+    # Check if this was the last vote needed
+    if not self.checkPollOngoing(poll_key):
+      self.closePoll(poll_key)
+    return part_data
 
   def addPollParticipants(self, poll_key, new_participants):
     """
@@ -251,14 +252,14 @@ class Model:
     if not poll_data['ongoing']:
       return False
     if not time_remains:
-      self.closePoll(poll_key)
+      # self.closePoll(poll_key)
       return False
     for part_key in poll_data['participants'].keys():
       part_data = self.getParticipant(part_key)
       if part_data['voted'] == False:
         return True
     # All participants have voted
-    self.closePoll(poll_key)
+    # self.closePoll(poll_key)
     return False
 
   def closePoll(self, poll_key):
@@ -272,10 +273,6 @@ class Model:
     poll_data['ongoing'] = False
     self.client.set(poll_key, dumps(poll_data))
     # TODO: Notify the participants and send them the results: notify.emailResults()
-    # Delete Initator and Participant data
-    self.deletePerson(poll_data['initiator'])
-    for part_key in poll_data['participants'].keys():
-      self.deletePerson(part_key)
 
   def getAllVotes(self, poll_key):
     """
@@ -294,6 +291,19 @@ class Model:
       part_choice = self.getParticipant(part_key)['choice']
       results.append(part_choice)
     return results
+
+  def deletePollPeople(self, poll_data):
+    """
+    Deletes the Initiator's and all Participants' DB records for the given
+    poll.
+
+    Args:
+      poll_data: The poll's data dictionary.
+    """
+    # Delete Initator and Participant data
+    self.deletePerson(poll_data['initiator'])
+    for part_key in poll_data['participants'].keys():
+      self.deletePerson(part_key)
 
   def deletePerson(self, key):
     """
