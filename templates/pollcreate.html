@@ -9,7 +9,12 @@
       Close: <input name='close'><br>
       Your Email: <input name='initiator_email'><br>
       Participant Emails: <input name='participant_emails'><br>
-      Poll Type: <input name='poll_type'><br>
+      Poll Type: <select name='poll_type'>
+        <option value='plurality'>Plurality Vote</option>
+        <option value='majority'>Majority Vote</option>
+        <option value='pref-plurality'>Preferential Plurality Vote</option>
+      </select>
+        <br>
       <input type='submit' value='submit' >
     </fieldset>
   </form>

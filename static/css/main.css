@@ -96,7 +96,7 @@ fieldset legend {
   font-size: 16pt;
 }
 
-fieldset input {
+fieldset input, select {
   margin: 5px 5px 5px 0px;
 }
 

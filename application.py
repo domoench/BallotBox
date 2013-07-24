@@ -81,7 +81,7 @@ def results(poll_key):
       if choice == 'None':
         percents_readout['Did Not Vote'] = percents['None']
       else:
-        percents_readout[poll_data['choices'][choice]] = percents[choice]
+        percents_readout[poll_data['choices'][choice]] = round(percents[choice], 2)
     page_data = {}
     page_data['poll'] = poll_data
     page_data['num_participants'] = len(poll_data['participants'])
