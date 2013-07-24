@@ -1,8 +1,13 @@
 """
+
 BallotBox
 
 Author: David Moench
-Overview: A polling application.
+
+Overview: A polling application that is simple and non-invasive for users
+  (doesn't require account creation) yet prevents voter fraud like multiple
+  voting.
+
 """
 
 from flask import Flask, url_for, render_template, request, redirect
@@ -93,7 +98,6 @@ def participantPollPage(poll_key, participant_key):
   """
   if request.method == 'GET':
     poll_data = md.getPoll(poll_key)
-
     # Check poll is ongoing
     if not md.checkPollOngoing(poll_key):
       page_data = {}
@@ -101,7 +105,6 @@ def participantPollPage(poll_key, participant_key):
       page_data['poll'] = poll_data
       page_data['domain_root'] = config.conf['DOMAIN_ROOT']
       return render_template('pollclosed.html', data = page_data)
-
     # Check valid participant
     if participant_key not in poll_data['participants'].keys():
       raise Exception('Invalid participant key.')
@@ -109,7 +112,6 @@ def participantPollPage(poll_key, participant_key):
     page_data['participant'] = md.getParticipant(participant_key)
     page_data['poll'] = poll_data
     return render_template('vote.html', data = page_data)
-
   else: # request.method == POST
     # TODO: Reroute to a PUT request to store in Redis. More RESTful.
     md.vote(participant_key, int(request.form['choice']))
@@ -118,6 +120,7 @@ def participantPollPage(poll_key, participant_key):
     page_data = {}
     page_data['poll'] = md.getPoll(poll_key)
     page_data['participant'] = participant
+    page_data['status_msg'] = 'Thank you for voting ' + participant['email']
     return render_template('vote.html', data = page_data)
 
 @app.route('/<poll_key>/admin', methods = ['GET'])

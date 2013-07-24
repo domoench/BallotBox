@@ -104,7 +104,12 @@ fieldset input {
 #content.poll-create-page {
 }
 
-/* Poll Results Page */
+/* Voting Page */
+#content.vote-page p#status-msg {
+  margin-bottom: 15px;
+}
+
+/* Results Page */
 #content.results-page #results {
   border: 2px solid black;
   width: 400px;
@@ -124,7 +129,8 @@ fieldset input {
 
 /* Poll Admin Page */
 #content.poll-admin-page form fieldset {
-  margin-bottom: 10px;
+  padding: 15px;
+  margin-bottom: 25px;
 }
 
 #content.poll-admin-page form fieldset p {
