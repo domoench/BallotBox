@@ -48,22 +48,33 @@ def indexPage():
     init_key = poll_data['initiator']
     init_data = md.getInitiator(init_key)
     notify.emailInitiator(init_data['email'], init_key, poll_key)
-    # TODO: Temporary return value. Change to redirect.
-    return dumps(md.getParticipantVoteLinks(poll_data['participants'], poll_key))
+    # TODO: Delete this notification when testing is complete
+    message = 'Poll \'' + poll_data['name'] + '\' created.\n'
+    log_stmt = {'message': message, 'links': None}
+    with open(config.conf['LOG_FILE'], 'a') as fh:
+      fh.write(dumps(log_stmt) + '\n')
+    # TODO: Change to redirect.
+    return 'Poll \'' + poll_data['name'] + '\' created.'
 
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results(poll_key):
   # Check if poll is ongoing
   poll_data = md.getPoll(poll_key)
+  if poll_data is None:
+    # TODO: Handle better
+    return 'Sorry, that poll doesn\'t exist!'
   if md.checkPollOngoing(poll_key):
     return 'Results are not available. \'' + poll_data['name'] + '\' is ongoing.'
   else:
+    # TODO: The following line prevents deleting people's data while letting
+    # the results page persist. A possible solution would be to add the calculated
+    # stats to the poll data on close.
     results = md.getAllVotes(poll_key)
     percents = helpers.calcStats(results, len(poll_data['choices']))
     percents_readout = {}
     for choice in percents.keys():
       if choice == 'None':
-        percents_readout['None'] = percents['None']
+        percents_readout['Did Not Vote'] = percents['None']
       else:
         percents_readout[poll_data['choices'][choice]] = percents[choice]
     page_data = {}
@@ -179,6 +190,7 @@ def closePoll(poll_key):
     }
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
+    # TODO: Delete people's info
     # TODO: Redirect to results page
     return 'Closed Poll!'
 
