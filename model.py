@@ -186,7 +186,8 @@ class Model:
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
     # TODO: Remove the following notification after the demo
-    message = 'Participant ' + part_data['email'] + ' voted.'
+    message = ('Participant ' + part_data['email'] + ' voted for ' +
+              poll_data['choices'][part_data['choice']] + '.')
     log_stmt = {'message': message, 'links': None}
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')

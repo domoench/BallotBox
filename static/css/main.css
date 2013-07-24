@@ -1,3 +1,133 @@
+/*---------------------------------------------------------------------------*\
+   RESET
+\*---------------------------------------------------------------------------*/
+/* http://meyerweb.com/eric/tools/css/reset/ */
+
+html,body,div,span,applet,object,iframe,
+h1,h2,h3,h4,h5,h6,p,blockquote,pre,
+a,abbr,acronym,address,big,cite,code,
+del,dfn,em,img,ins,kbd,q,s,samp,
+small,strike,strong,sub,sup,tt,var,
+b,u,i,center,
+dl,dt,dd,ol,ul,li,
+form,label,
+table,caption,tbody,tfoot,thead,tr,th,td,
+article,aside,canvas,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section,summary,
+time,mark,audio,video
+{
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    font:inherit;
+    vertical-align:baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section
+{
+    display:block;
+}
+
+body
+{
+    line-height:1;
+}
+ol,ul
+{
+    list-style:none;
+}
+blockquote,q
+{
+    quotes:none;
+}
+blockquote:before,blockquote:after,
+q:before,q:after
+{
+    content:’’;
+    content:none;
+}
+ins
+{
+    text-decoration:none;
+}
+del
+{
+    text-decoration:line-through;
+}
+table
+{
+    border-collapse:collapse;
+    border-spacing:0;
+}
+
+/*---------------------------------------------------------------------------*\
+   BALLOTBOX STYLES
+\*---------------------------------------------------------------------------*/
+body {
+  font-family: calibri, sans-serif;
+}
+
 h1 {
   color: gray;
+  font-size: 30pt;
+  padding: 10px 0px;
+}
+
+h2 {
+  color: black;
+  font-size: 20pt;
+  padding: 5px 0px 10px 0px;
+}
+
+body {
+  width: 800px;
+  margin: 0px auto;
+}
+
+/* Poll Creation Page */
+#content.poll-create-page {
+}
+
+/* Poll Admin Page */
+#content.poll-admin-page {
+}
+
+#content.poll-admin-page form fieldset {
+  margin-bottom: 10px;
+}
+
+#content.poll-admin-page form fieldset p {
+  padding: 5px;
+}
+
+/* Log Page */
+/* TODO: Delete this once emailing is implemented */
+#content.log-page a {
+  text-decoration: none;
+  background-color: #013F3F;
+  display: inline-block;
+  color: white;
+  padding: 5px;
+}
+
+#content.log-page a:hover {
+  background-color: #0D2E2E;
+}
+
+#content.log-page a.clear-button {
+  margin: 5px 5px 5px 0px;
+}
+
+#content.log-page .log-statement {
+  background-color: #4C9E9E;
+  padding: 5px 5px 5px 10px;
+  margin: 5px 0px;
+}
+
+#content.log-page .log-statement p a {
+  margin: 5px;
 }

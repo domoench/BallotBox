@@ -115,7 +115,13 @@ def admin(poll_key):
   poll_data = md.getPoll(poll_key)
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
-  # TODO: elif poll is over?
+  # Check poll is ongoing
+  if not md.checkPollOngoing(poll_key):
+    page_data = {}
+    page_data['poll_key'] = poll_key
+    page_data['poll'] = poll_data
+    page_data['domain_root'] = config.conf['DOMAIN_ROOT']
+    return render_template('pollclosed.html', data = page_data)
   else:
     init_data = md.getInitiator(init_key)
     page_data = {}
@@ -144,7 +150,7 @@ def addParticipants(poll_key):
     for participant in new_part_links_dict:
       notify.emailParticipant(participant)
     # TODO: Redirect to admin page with alert that participants were added
-    return 'Added Participants YAYYYYY! (Not actually though...)'
+    return 'Added Participants! (Not actually though...)'
 
 @app.route('/<poll_key>/close', methods = ['POST'])
 def closePoll(poll_key):
@@ -157,7 +163,7 @@ def closePoll(poll_key):
     # Close Poll
     md.closePoll(poll_key)
     # TODO: Notify people
-    message = 'Poll \'' + poll_data['name'] + '\' + closed.\n'
+    message = 'Poll \'' + poll_data['name'] + '\' closed.\n'
     results_path = '/' + poll_key + '/results'
     log_stmt = {
       'message': message,
@@ -171,7 +177,7 @@ def closePoll(poll_key):
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
     # TODO: Redirect to results page
-    return 'Closing Poll YAYYYYY! (Not actually though...)'
+    return 'Closed Poll!'
 
 # TODO: Remove this route after emailing is implemented
 @app.route('/log', methods = ['GET'])
