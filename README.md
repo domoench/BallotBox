@@ -3,11 +3,13 @@ BallotBox
 
 Overview
 --------
-BallotBox (working title) is a polling/voting web application that prevents
-fraudulent double-voting, but does not require voters to register (too much
-effort). An Initiator creates a poll, specifying the options to vote for
-and the emails of participants. BallotBox emails a unique ballot link to
-each participant that allows them to vote. After the poll closes a link to
+BallotBox is a web application for conducting polls. It is convenient and
+non-invasive because participants don't need to create user accounts, and it
+prevents voter fraud.
+
+An Initiator creates a poll, specifying the options to vote for
+and the emails of participants. BallotBox emails a unique secret ballot link
+to each participant that allows them to vote. After the poll closes a link to
 the results is emailed to everyone and their email addresses are erased from
 BallotBox's memory.
 
