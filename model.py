@@ -159,6 +159,7 @@ class Model:
     if init_key[:5] != 'init_':
       raise Exception('Incorrect key passed to model.getInitiator(): ' +
                       init_key)
+    print loads(self.client.get(init_key))
     return loads(self.client.get(init_key))
 
   def vote(self, part_key, choice):
@@ -171,13 +172,19 @@ class Model:
       choice: An integer offset into the parent poll's 'choices' list
     """
     part_data = self.getParticipant(part_key)
-    poll_data = self.getPoll(part_data['poll'])
+    poll_key = part_data['poll']
+    poll_data = self.getPoll(poll_key)
     num_choices = len(poll_data['choices'])
     if(choice not in range(num_choices)):
       raise Exception('Invalid choice value ' + choice + ' provided to model.vote()')
     part_data['choice'] = choice
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
+    # Check if this was the last vote needed
+    if not self.checkPollOngoing(poll_key):
+      pass
+      # TODO: Seperate closePoll out of checkPollOngoing. That way you can check if its on going
+      # and if so call closePoll()
     # TODO: Remove the following notification after the demo
     message = 'Participant ' + part_data['email'] + ' voted.'
     log_stmt = {'message': message, 'links': None}
@@ -226,27 +233,26 @@ class Model:
   def checkPollOngoing(self, poll_key):
     """
     Checks if the poll is still ongoing (meaning there is still time left and
-    there are participants who have not voted). If
-    Returns true if there is still time left in the poll and there are still
-    participants who have not voted.
+    there are participants who have not voted). If the poll's 'ongoing'
+    attribute is True, but we find that there is no time remaining or everyone
+    has voted then we call closePoll().
 
     Args:
       poll_key: The poll's key string.
 
-    Returns: Boolean
+    Returns:
+      Boolean. True if there is still time left in the poll and there are still
+      participants who have not voted. False otherwise.
     """
     poll_data = self.getPoll(poll_key)
     now = datetime.datetime.utcnow()
     close = datetime.datetime.strptime(poll_data['close'], '%Y-%m-%dT%H:%M:%S')
     time_remains = close - now > datetime.timedelta(minutes = 0)
-
     if not poll_data['ongoing']:
       return False
-
     if not time_remains:
       self.closePoll(poll_key)
       return False
-
     for part_key in poll_data['participants'].keys():
       part_data = self.getParticipant(part_key)
       if part_data['voted'] == False:
@@ -265,6 +271,11 @@ class Model:
     poll_data = self.getPoll(poll_key)
     poll_data['ongoing'] = False
     self.client.set(poll_key, dumps(poll_data))
+    # TODO: Notify the participants and send them the results: notify.emailResults()
+    # Delete Initator and Participant data
+    self.deletePerson(poll_data['initiator'])
+    for part_key in poll_data['participants'].keys():
+      self.deletePerson(part_key)
 
   def getAllVotes(self, poll_key):
     """
@@ -294,6 +305,17 @@ class Model:
     if key[:5] not in ['part_', 'init_']:
       raise Exception('model.deletePerson() can only be performed on a' +
                       'participant or initiator record.')
+    # TODO: Delete this notification after testing is complete
+    if key[:5] == 'part_':
+      print 'PARTICIPANT: ', self.getParticipant(key)['email']
+      message = 'Participant ' + self.getParticipant(key)['email'] + ' deleted.'
+    else:
+      print 'INITIATOR: ', self.getInitiator(key)
+      message = 'Initiator ' + self.getInitiator(key)['email'] + ' deleted.'
+    log_stmt = {'message': message, 'links': None}
+    with open('log.txt', 'a') as fh:
+      fh.write(dumps(log_stmt) + '\n')
+    # Delete the DB record
     self.client.delete(key)
 
   def getParticipantVoteLinks(self, participants, poll_key):
