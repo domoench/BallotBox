@@ -103,8 +103,11 @@ def participantPollPage(poll_key, participant_key):
     # TODO: Reroute to a PUT request to store in Redis. More RESTful.
     md.vote(participant_key, int(request.form['choice']))
     participant = md.getParticipant(participant_key)
-    return 'Thank you for voting: ' + participant['email']
-    # TODO: Instead redirect back to the vote page but display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
+    # TODO: Refresh and display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
+    page_data = {}
+    page_data['poll'] = md.getPoll(poll_key)
+    page_data['participant'] = participant
+    return render_template('vote.html', data = page_data)
 
 @app.route('/<poll_key>/admin', methods = ['GET'])
 def admin(poll_key):

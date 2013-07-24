@@ -47,6 +47,7 @@ def runTests():
   testVote()
   testCheckPollOngoing()
   # testClosePoll() TODO
+  # testDeletePollPeople() TODO
   testCalcStats()
   testGetAllVotes()
   testGetParticipantVoteLinks()
@@ -167,15 +168,13 @@ def testCheckPollOngoing():
   check(md.checkPollOngoing(poll1_key))
   poll1_data = md.getPoll(poll1_key)
   check(poll1_data['ongoing'] == True)
-
-  # Ongoing, but all participants have voted
+  # Ongoing, though all participants have voted
   poll2_key = md.createPoll(poll_data_raw)
   poll2_data = md.getPoll(poll2_key)
   poll2_part_keys = poll2_data['participants'].keys()
   for part_key in poll2_part_keys:
     md.vote(part_key, 0)
-  check(not md.checkPollOngoing(poll2_key))
-
+  check(md.checkPollOngoing(poll2_key))
   # Ongoing, but time is up
   poll3_key = md.createPoll(poll_data_raw)
   poll3_data = md.getPoll(poll3_key)

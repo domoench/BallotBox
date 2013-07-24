@@ -1,5 +1,8 @@
 """
   Handles interaction between BallotBox Flask app and Redis DB
+
+  TODO: Find where you can pass in data dicts instead of keys to
+        reduce trips to the DB
 """
 import redis
 import datetime
@@ -159,7 +162,6 @@ class Model:
     if init_key[:5] != 'init_':
       raise Exception('Incorrect key passed to model.getInitiator(): ' +
                       init_key)
-    print loads(self.client.get(init_key))
     return loads(self.client.get(init_key))
 
   def vote(self, part_key, choice):
@@ -188,9 +190,6 @@ class Model:
     log_stmt = {'message': message, 'links': None}
     with open(config.conf['LOG_FILE'], 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
-    # Check if this was the last vote needed
-    if not self.checkPollOngoing(poll_key):
-      self.closePoll(poll_key)
     return part_data
 
   def addPollParticipants(self, poll_key, new_participants):
@@ -233,34 +232,24 @@ class Model:
 
   def checkPollOngoing(self, poll_key):
     """
-    Checks if the poll is still ongoing (meaning there is still time left and
-    there are participants who have not voted). If the poll's 'ongoing'
-    attribute is True, but we find that there is no time remaining or everyone
-    has voted then we call closePoll().
+    Checks if the poll is still ongoing (meaning there is still time left ).
 
     Args:
       poll_key: The poll's key string.
 
     Returns:
-      Boolean. True if there is still time left in the poll and there are still
-      participants who have not voted. False otherwise.
+      Boolean. True if there is still time left in the poll. False otherwise.
     """
     poll_data = self.getPoll(poll_key)
+    if not poll_data['ongoing']:
+      return False
     now = datetime.datetime.utcnow()
     close = datetime.datetime.strptime(poll_data['close'], '%Y-%m-%dT%H:%M:%S')
     time_remains = close - now > datetime.timedelta(minutes = 0)
-    if not poll_data['ongoing']:
-      return False
     if not time_remains:
-      # self.closePoll(poll_key)
       return False
-    for part_key in poll_data['participants'].keys():
-      part_data = self.getParticipant(part_key)
-      if part_data['voted'] == False:
-        return True
-    # All participants have voted
-    # self.closePoll(poll_key)
-    return False
+    else:
+      return True
 
   def closePoll(self, poll_key):
     """
@@ -317,10 +306,8 @@ class Model:
                       'participant or initiator record.')
     # TODO: Delete this notification after testing is complete
     if key[:5] == 'part_':
-      print 'PARTICIPANT: ', self.getParticipant(key)['email']
       message = 'Participant ' + self.getParticipant(key)['email'] + ' deleted.'
     else:
-      print 'INITIATOR: ', self.getInitiator(key)
       message = 'Initiator ' + self.getInitiator(key)['email'] + ' deleted.'
     log_stmt = {'message': message, 'links': None}
     with open('log.txt', 'a') as fh:
