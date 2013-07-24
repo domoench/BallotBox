@@ -1,9 +1,15 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<h2>{{ data['poll']['name'] }} Results</h2>
-{% for choice in data['percents_readout'] %}
-  <p>{{ choice }}: {{ data['percents_readout'][choice] }} %</p>
-{% endfor %}
-<p>This poll had {{ data['num_participants'] }} participants</p>
+<h2>{{ data['poll']['name'] }} Results:</h2>
+<div id='content' class='results-page'>
+  <div id='results'>
+    <ul>
+    {% for choice in data['percents_readout'] %}
+    <li><span>{{ choice }}</span>: {{ data['percents_readout'][choice] }} %</li>
+    {% endfor %}
+  </ul>
+  </div>
+  <p>This poll had {{ data['num_participants'] }} participants</p>
+</div>
 {% endblock %}
