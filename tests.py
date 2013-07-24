@@ -13,7 +13,7 @@ import model
 import config
 import helpers
 import datetime
-import json
+from json import dumps, loads
 import random
 import math
 import smtplib
@@ -183,7 +183,7 @@ def testCheckPollOngoing():
   poll3_key = md.createPoll(poll_data_raw)
   poll3_data = md.getPoll(poll3_key)
   poll3_data['close'] = datetime.datetime(1987, 5, 20, 4, 0).isoformat()
-  md.client.set(poll3_key, json.dumps(poll3_data))
+  md.client.set(poll3_key, dumps(poll3_data))
   check(not md.checkPollOngoing(poll3_key))
   poll3_data = md.getPoll(poll3_key)
   check(poll3_data['ongoing'] == False)

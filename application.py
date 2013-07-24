@@ -79,11 +79,10 @@ def participantPollPage(poll_key, participant_key):
   """
   The participants' voting page. 'GET' generates the participant's ballot.
   'PUT' submits and stores their vote.
-
-  # TODO: Add handler for invalid or expired poll or participant keys
   """
   if request.method == 'GET':
     poll_data = md.getPoll(poll_key)
+
     # Check poll is ongoing
     if not md.checkPollOngoing(poll_key):
       page_data = {}
@@ -91,6 +90,7 @@ def participantPollPage(poll_key, participant_key):
       page_data['poll'] = poll_data
       page_data['domain_root'] = config.conf['DOMAIN_ROOT']
       return render_template('pollclosed.html', data = page_data)
+
     # Check valid participant
     if participant_key not in poll_data['participants'].keys():
       raise Exception('Invalid participant key.')
@@ -98,7 +98,8 @@ def participantPollPage(poll_key, participant_key):
     page_data['participant'] = md.getParticipant(participant_key)
     page_data['poll'] = poll_data
     return render_template('vote.html', data = page_data)
-  else: # POST
+
+  else: # request.method == POST
     # TODO: Reroute to a PUT request to store in Redis. More RESTful.
     md.vote(participant_key, int(request.form['choice']))
     participant = md.getParticipant(participant_key)

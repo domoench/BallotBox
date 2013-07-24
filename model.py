@@ -4,7 +4,7 @@
 import redis
 import datetime
 import helpers
-import json
+from json import dumps, loads
 import config # TODO: Remove this when temporary log file notification is no longer used
 
 class Model:
@@ -54,7 +54,7 @@ class Model:
       'participants': part_map
     }
     poll_key = helpers.generateKeyString(poll_data_raw['name'], now.isoformat(), 'poll_')
-    self.client.set(poll_key, json.dumps(poll_data_processed))
+    self.client.set(poll_key, dumps(poll_data_processed))
 
     # Create initiator's record
     init_data = {
@@ -92,7 +92,7 @@ class Model:
     Returns:
       The initiator's key string.
     """
-    self.client.set(init_key, json.dumps(init_data_raw))
+    self.client.set(init_key, dumps(init_data_raw))
     return init_key
 
   def setParticipant(self, part_key, part_data_raw):
@@ -115,7 +115,7 @@ class Model:
     Returns:
       The participant's key string.
     """
-    self.client.set(part_key, json.dumps(part_data_raw))
+    self.client.set(part_key, dumps(part_data_raw))
     return part_key
 
   def getPoll(self, poll_key):
@@ -130,7 +130,7 @@ class Model:
     """
     if poll_key[:5] != 'poll_':
       raise Exception('Incorrect key passed to getPoll(): ' + poll_key)
-    return json.loads(self.client.get(poll_key))
+    return loads(self.client.get(poll_key))
 
   def getParticipant(self, part_key):
     """
@@ -144,7 +144,7 @@ class Model:
     """
     if part_key[:5] != 'part_':
       raise Exception('Incorrect key passed to getPartiticpant(): ' + part_key)
-    return json.loads(self.client.get(part_key))
+    return loads(self.client.get(part_key))
 
   def getInitiator(self, init_key):
     """
@@ -159,7 +159,7 @@ class Model:
     if init_key[:5] != 'init_':
       raise Exception('Incorrect key passed to model.getInitiator(): ' +
                       init_key)
-    return json.loads(self.client.get(init_key))
+    return loads(self.client.get(init_key))
 
   def vote(self, part_key, choice):
     """
@@ -179,9 +179,10 @@ class Model:
     part_data['voted'] = True
     self.setParticipant(part_key, part_data)
     # TODO: Remove the following notification after the demo
-    f = open(config.conf['LOG_FILE'], 'a')
-    f.write('Participant ' + part_data['email'] + ' voted.\n')
-    f.close()
+    message = 'Participant ' + part_data['email'] + ' voted.'
+    log_stmt = {'message': message, 'links': None}
+    with open(config.conf['LOG_FILE'], 'a') as fh:
+      fh.write(dumps(log_stmt) + '\n')
     # TODO: This would be a good place to check if all participant votes
 
   def addPollParticipants(self, poll_key, new_participants):
@@ -210,7 +211,7 @@ class Model:
         # Add new participant key to the Poll
         new_part_key = helpers.generateKeyString(email, now_str, 'part_')
         participants[new_part_key] = email
-        self.client.set(poll_key, json.dumps(poll_data))
+        self.client.set(poll_key, dumps(poll_data))
         # Create new participant record
         new_part_data_raw = {
           'email':  email,
@@ -263,7 +264,7 @@ class Model:
     """
     poll_data = self.getPoll(poll_key)
     poll_data['ongoing'] = False
-    self.client.set(poll_key, json.dumps(poll_data))
+    self.client.set(poll_key, dumps(poll_data))
 
   def getAllVotes(self, poll_key):
     """

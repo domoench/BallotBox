@@ -6,11 +6,13 @@
   {% for line in data %}
   <div class='log-statement'>
     <p class='message'>{{ line['message'] }}</p>
-    <ul class='links'>
-      {% for link in line['links'] %}
-      <li><a href='{{ link['href'] }}' target='_blank'>{{ link['text'] }}</a>
-      {% endfor %}
-    </ul>
+    {% if line['links'] is not none %}
+      <ul class='links'>
+        {% for link in line['links'] %}
+        <li><a href='{{ link['href'] }}' target='_blank'>{{ link['text'] }}</a>
+        {% endfor %}
+      </ul>
+    {% endif %}
   </div>
   {% endfor %}
 {% endblock %}
