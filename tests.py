@@ -84,6 +84,8 @@ def testCreateAndGetInitiator():
   init_data = md.getInitiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
+  # Fake Initiator
+  check(md.getInitiator('init_fakeparticipant') == None)
   md.clearRedis()
 
 def testCreateAndGetParticipant():
@@ -103,6 +105,8 @@ def testCreateAndGetParticipant():
   check(part_data['poll'] == poll_key)
   check(part_data['voted'] == True)
   check(part_data['choice'] == 1)
+  # Fake Participant
+  check(md.getParticipant('part_fakeparticipant') == None)
   md.clearRedis()
 
 def testCreateAndGetPoll():

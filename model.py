@@ -129,15 +129,15 @@ class Model:
       poll_key: The poll's key string.
 
     Returns:
-      A python dictionary of the record. Or None if no record found.
+      A python dictionary of the record, or None if no record found.
     """
     if poll_key[:5] != 'poll_':
       raise Exception('Incorrect key passed to getPoll(): ' + poll_key)
-    result = self.client.get(poll_key)
-    if result is not None:
-      return loads(self.client.get(poll_key))
-    else:
+    poll_data = self.client.get(poll_key)
+    if poll_data is None:
       return None
+    else:
+      return loads(poll_data)
 
   def getParticipant(self, part_key):
     """
@@ -147,11 +147,15 @@ class Model:
       part_key: The participant's key string.
 
     Returns:
-      A python dictionary of the record.
+      A python dictionary of the record, or None if no record found.
     """
     if part_key[:5] != 'part_':
       raise Exception('Incorrect key passed to getPartiticpant(): ' + part_key)
-    return loads(self.client.get(part_key))
+    part_data = self.client.get(part_key)
+    if part_data is None:
+      return None
+    else:
+      return loads(part_data)
 
   def getInitiator(self, init_key):
     """
@@ -161,12 +165,16 @@ class Model:
       init_key: The initiator's key string.
 
     Returns:
-      A python dictionary of the record.
+      A python dictionary of the record, or None if no record found.
     """
     if init_key[:5] != 'init_':
       raise Exception('Incorrect key passed to model.getInitiator(): ' +
                       init_key)
-    return loads(self.client.get(init_key))
+    init_data = self.client.get(init_key)
+    if init_data is None:
+      return None
+    else:
+      return loads(init_data)
 
   def vote(self, part_key, choice):
     """
