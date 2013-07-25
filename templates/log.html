@@ -3,7 +3,7 @@
 {% block content %}
   <h2>Log</h2>
   <div id='content' class='log-page'>
-    <a class='clear-button' href='{{ url_for('clearLog') }}'>Clear Log And Redis</a>
+    <a class='clear-button' href='{{ url_for('clear_log_route') }}'>Clear Log And Redis</a>
     {% for line in data %}
       <div class='log-statement'>
         <p class='message'>{{ line['message'] }}
