@@ -384,6 +384,6 @@ class Model:
         num_voted += 1
     return (num_voted, num_participants)
 
-  def clearRedis(self):
+  def clear_redis(self):
     for key in self.client.keys('*'):
       self.client.delete(key)

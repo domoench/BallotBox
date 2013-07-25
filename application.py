@@ -213,7 +213,7 @@ def logDisplay():
 # TODO: Remove this route after emailing is implemented
 @app.route('/clearlog', methods = ['GET'])
 def clearLog():
-  md.clearRedis()
+  md.clear_redis()
   open('log.txt', 'w').close()
   return redirect(url_for('logDisplay'))
 
