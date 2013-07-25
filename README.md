@@ -25,3 +25,7 @@ Installation
 In your virtualenv you must have the following installed:
 * [Flask](http://flask.pocoo.org/docs/installation/)
 * [redis-py](https://pypi.python.org/pypi/redis/)
+
+Create the following UNIX environment variables to pull in credentials:
+1. MANDRILL_USER: Mandrill email service username
+2. MANDRILL_PASS: Mandrill email service password

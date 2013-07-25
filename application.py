@@ -174,7 +174,7 @@ def add_participants_route(poll_key):
 
 @app.route('/<poll_key>/close', methods = ['POST'])
 def close_poll_route(poll_key):
-    # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
+    # TODO: Reroute to a PATCH request to update the poll record. More RESTful.
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
     if init_key != poll_data['initiator']:

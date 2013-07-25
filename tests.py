@@ -18,6 +18,7 @@ import random
 import math
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 # CONFIG
 md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
@@ -53,7 +54,7 @@ def runTests():
     test_get_participant_vote_links()
     test_get_poll_progress()
     test_delete_person()
-    # test_smtp()
+    test_smtp()
     md.clear_redis()
     print 'All tests passed!'
 
@@ -242,8 +243,12 @@ def test_smtp():
     msg['To'] = to_addr
     # Fire up our SMTP server
     print msg.as_string()
-    s = smtplib.SMTP('localhost')
-    s.sendmail(from_addr, [to_addr], msg.as_string())
+    s = smtplib.SMTP('smtp.mandrillapp.com', 587)
+    username = os.environ.get('MANDRILL_USER')
+    password = os.environ.get('MANDRILL_PASS')
+    print (username, password)
+    s.login(username, password)
+    s.sendmail(msg['From'], msg['To'], msg.as_string())
     s.quit()
 
 def test_get_participant_vote_links():
