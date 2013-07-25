@@ -133,14 +133,19 @@ def participant_poll_route(poll_key, participant_key):
 def admin_route(poll_key):
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
+    page_data = {'link': None}
+    no_good = False
+    # Check poll exists
     if poll_data is None:
-        # TODO: Handle better
-        return 'Sorry, that poll doesn\'t exist!'
-    if init_key != poll_data['initiator']:
-        return render_template('badinitiator.html')
+        no_good = True
+        page_data['message'] = 'Sorry, that poll doesn\'t exist'
+    # Check if the requester is the initiator
+    elif init_key != poll_data['initiator']:
+        no_good = True
+        page_data['message'] = 'Sorry, you don\'t have poll admin creds.'
     # Check poll is ongoing
-    if not md.check_poll_ongoing(poll_key):
-        page_data = {}
+    elif not md.check_poll_ongoing(poll_key):
+        no_good = True
         page_data['message'] = ('Sorry, \'' + poll_data['name'] +
                         '\' has been closed.')
         domain = config.conf['DOMAIN_ROOT']
@@ -148,10 +153,10 @@ def admin_route(poll_key):
             'anchor': domain + '/' + poll_key + '/results',
             'text': 'See Results'
         }
+    if no_good:
         return render_template('message.html', data = page_data)
     else:
         init_data = md.get_initiator(init_key)
-        page_data = {}
         page_data['poll'] = poll_data
         page_data['poll_key'] = poll_key
         page_data['progress'] = md.get_poll_progress(poll_key)
