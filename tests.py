@@ -46,14 +46,14 @@ def runTests():
   test_add_poll_participants()
   test_vote()
   test_check_poll_ongoing()
-  # testClosePoll() TODO
-  # testDeletePollPeople() TODO
-  testCalcStats()
-  testGetAllVotes()
-  testGetParticipantVoteLinks()
-  testGetPollProgress()
-  testDeletePerson()
-  # testSmtp()
+  # test_close_poll() TODO
+  # test_delete_poll_people() TODO
+  test_calc_stats()
+  test_get_all_votes()
+  test_get_participant_vote_links()
+  test_get_poll_progress()
+  test_delete_person()
+  # test_smtp()
   md.clear_redis()
   print 'All tests passed!'
 
@@ -80,12 +80,12 @@ def test_create_and_get_initiator():
     'poll': poll_key
   }
   # Insert then Check
-  md.setInitiator(init_key, init_data_raw)
-  init_data = md.getInitiator(init_key)
+  md.set_initiator(init_key, init_data_raw)
+  init_data = md.get_initiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
   # Fake Initiator
-  check(md.getInitiator('init_fakeparticipant') == None)
+  check(md.get_initiator('init_fakeparticipant') == None)
   md.clear_redis()
 
 def test_create_and_get_participant():
@@ -99,29 +99,29 @@ def test_create_and_get_participant():
     'choice': 1
   }
   # Insert then Check
-  md.setParticipant(part_key, part_data_raw)
-  part_data = md.getParticipant(part_key)
+  md.set_participant(part_key, part_data_raw)
+  part_data = md.get_participant(part_key)
   check(part_data['email'] == poll_data_raw['participants'][0])
   check(part_data['poll'] == poll_key)
   check(part_data['voted'] == True)
   check(part_data['choice'] == 1)
   # Fake Participant
-  check(md.getParticipant('part_fakeparticipant') == None)
+  check(md.get_participant('part_fakeparticipant') == None)
   md.clear_redis()
 
 def test_create_and_get_poll():
   # Fake Poll
-  check(md.getPoll('poll_fakeyfake') == None)
+  check(md.get_poll('poll_fakeyfake') == None)
   # Real Poll
-  poll_key = md.createPoll(poll_data_raw)
-  poll_data = md.getPoll(poll_key)
+  poll_key = md.create_poll(poll_data_raw)
+  poll_data = md.get_poll(poll_key)
   check(poll_data['name'] == name)
   check(poll_data['choices'] == choices)
   check(poll_data['close'] == close)
   check(poll_data['type'] == poll_type)
   # Look up initiator info from poll
   init_key = poll_data['initiator']
-  init_data = md.getInitiator(init_key)
+  init_data = md.get_initiator(init_key)
   check(init_data['email'] == poll_data_raw['initiator'])
   check(init_data['poll'] == poll_key)
 
@@ -130,19 +130,19 @@ def test_create_and_get_poll():
   key_count = 0
   for part_key in poll_data['participants']:
     key_count += 1
-    part_data = md.getParticipant(part_key)
+    part_data = md.get_participant(part_key)
     check(part_data['poll'] == poll_key)
     check(part_data['email'] in poll_data_raw['participants'])
   check(num_participants == key_count)
   # Look up poll from initiator
-  check(poll_data == md.getPoll(init_data['poll']))
+  check(poll_data == md.get_poll(init_data['poll']))
   # Look up poll from participant
-  check(poll_data == md.getPoll(part_data['poll']))
+  check(poll_data == md.get_poll(part_data['poll']))
   md.clear_redis()
 
 def test_vote():
-  poll_key = md.createPoll(poll_data_raw)
-  poll_data = md.getPoll(poll_key)
+  poll_key = md.create_poll(poll_data_raw)
+  poll_data = md.get_poll(poll_key)
   for part_key in poll_data['participants']:
     participant = md.vote(part_key, 0)
     choice = participant['choice']
@@ -152,16 +152,16 @@ def test_vote():
   md.clear_redis()
 
 def test_add_poll_participants():
-  poll_key = md.createPoll(poll_data_raw)
+  poll_key = md.create_poll(poll_data_raw)
   # Insert
   new_participants = []
   for i in range(0, 300):
     new_participants.append(str(i) + '@gmail.com')
-  new_part_keys = md.addPollParticipants(poll_key, new_participants)
+  new_part_keys = md.add_poll_participants(poll_key, new_participants)
   # Check
-  poll_participants = md.getPoll(poll_key)['participants']
+  poll_participants = md.get_poll(poll_key)['participants']
   for part_key in poll_participants.keys():
-    part_data = md.getParticipant(part_key)
+    part_data = md.get_participant(part_key)
     check(part_data['choice'] == None)
     check(part_data['poll'] == poll_key)
     check(part_data['voted'] == False)
@@ -171,26 +171,26 @@ def test_add_poll_participants():
 
 def test_check_poll_ongoing():
   # Ongoing
-  poll1_key = md.createPoll(poll_data_raw)
-  check(md.checkPollOngoing(poll1_key))
-  poll1_data = md.getPoll(poll1_key)
+  poll1_key = md.create_poll(poll_data_raw)
+  check(md.check_poll_ongoing(poll1_key))
+  poll1_data = md.get_poll(poll1_key)
   check(poll1_data['ongoing'] == True)
   # Ongoing, though all participants have voted
-  poll2_key = md.createPoll(poll_data_raw)
-  poll2_data = md.getPoll(poll2_key)
+  poll2_key = md.create_poll(poll_data_raw)
+  poll2_data = md.get_poll(poll2_key)
   poll2_part_keys = poll2_data['participants'].keys()
   for part_key in poll2_part_keys:
     md.vote(part_key, 0)
-  check(md.checkPollOngoing(poll2_key))
+  check(md.check_poll_ongoing(poll2_key))
   # Ongoing, but time is up
-  poll3_key = md.createPoll(poll_data_raw)
-  poll3_data = md.getPoll(poll3_key)
+  poll3_key = md.create_poll(poll_data_raw)
+  poll3_data = md.get_poll(poll3_key)
   poll3_data['close'] = datetime.datetime(1987, 5, 20, 4, 0).isoformat()
   md.client.set(poll3_key, dumps(poll3_data))
-  check(not md.checkPollOngoing(poll3_key))
+  check(not md.check_poll_ongoing(poll3_key))
   md.clear_redis()
 
-def testCalcStats():
+def test_calc_stats():
   results1 = helpers.calcStats([0, 3, 2, 1, 1, 0, 1, 0, 1, 3], 4)
   expected1 = {0: 30, 1: 40, 2: 10, 3: 20, 'None': 0}
   check(results1 == expected1)
@@ -198,21 +198,21 @@ def testCalcStats():
   expected2 = {0: 20, 1: 20, 2: 20, 'None': 40}
 
 # This basically simulates the lifecycle of an entire vote
-def testGetAllVotes():
-  poll_key = md.createPoll(poll_data_raw)
+def test_get_all_votes():
+  poll_key = md.create_poll(poll_data_raw)
   # Insert
   new_participants = []
   for i in range(0, 100):
     new_participants.append(str(i) + '@gmail.com')
-  md.addPollParticipants(poll_key, new_participants)
+  md.add_poll_participants(poll_key, new_participants)
   # Vote
-  participants = md.getPoll(poll_key)['participants']
+  participants = md.get_poll(poll_key)['participants']
   for part_key in participants:
     md.vote(part_key, random.randint(0, 3))
-  md.closePoll(poll_key)
-  poll_data = md.getPoll(poll_key)
+  md.close_poll(poll_key)
+  poll_data = md.get_poll(poll_key)
   check(len(poll_data['participants']) == 102)
-  choices_list = md.getAllVotes(poll_key)
+  choices_list = md.get_all_votes(poll_key)
   results = helpers.calcStats(choices_list, 4)
   total_percent = 0
   for key in results:
@@ -220,17 +220,17 @@ def testGetAllVotes():
   check(math.fabs(total_percent - 100.0) < 0.00001)
   md.clear_redis()
 
-def testDeletePerson():
-  poll_key = md.createPoll(poll_data_raw)
-  participants = md.getPoll(poll_key)['participants']
+def test_delete_person():
+  poll_key = md.create_poll(poll_data_raw)
+  participants = md.get_poll(poll_key)['participants']
   for part_key in participants:
-    md.deletePerson(part_key)
-  md.deletePerson(md.getPoll(poll_key)['initiator'])
+    md.delete_person(part_key)
+  md.delete_person(md.get_poll(poll_key)['initiator'])
   # Only the poll record remains
   check(len(md.client.keys('*')) == 1)
   md.clear_redis()
 
-def testSmtp():
+def test_smtp():
   from_addr = 'david.moench@arc90.com'
   to_addr = 'david.moench@arc90.com'
   msg = MIMEText('Flask generated this email. Yay')
@@ -243,15 +243,15 @@ def testSmtp():
   s.sendmail(from_addr, [to_addr], msg.as_string())
   s.quit()
 
-def testGetParticipantVoteLinks():
-  poll_key = md.createPoll(poll_data_raw)
+def test_get_participant_vote_links():
+  poll_key = md.create_poll(poll_data_raw)
   new_participants = []
   for i in range(0, 100):
     new_participants.append(str(i) + '@gmail.com')
-  added = md.addPollParticipants(poll_key, new_participants)
+  added = md.add_poll_participants(poll_key, new_participants)
   check(len(added) == 100)
-  poll_data = md.getPoll(poll_key)
-  results = md.getParticipantVoteLinks(poll_data['participants'], poll_key)
+  poll_data = md.get_poll(poll_key)
+  results = md.get_participant_vote_links(poll_data['participants'], poll_key)
   for pair in results:
     vote_link = pair['vote_link']
     check(vote_link[71:] in poll_data['participants'])
@@ -260,23 +260,23 @@ def testGetParticipantVoteLinks():
   duplicate_participants = []
   for i in range(0, 30):
     new_participants.append(str(i) + '@gmail.com')
-  added = md.addPollParticipants(poll_key, new_participants)
+  added = md.add_poll_participants(poll_key, new_participants)
   check(len(added) == 0)
 
   md.clear_redis()
 
-def testGetPollProgress():
-  poll_key = md.createPoll(poll_data_raw)
+def test_get_poll_progress():
+  poll_key = md.create_poll(poll_data_raw)
   # Insert
   new_participants = []
   for i in range(0, 50):
     new_participants.append(str(i) + '@gmail.com')
-  md.addPollParticipants(poll_key, new_participants)
+  md.add_poll_participants(poll_key, new_participants)
   # Vote
-  part_keys = md.getPoll(poll_key)['participants'].keys()
+  part_keys = md.get_poll(poll_key)['participants'].keys()
   for part_key in part_keys[:25]:
     md.vote(part_key, random.randint(0, 3))
-  prog_tuple = md.getPollProgress(poll_key)
+  prog_tuple = md.get_poll_progress(poll_key)
   check(prog_tuple == (25, 52))
   md.clear_redis()
 

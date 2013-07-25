@@ -16,7 +16,7 @@ class Model:
     self.port = port
     self.client = redis.StrictRedis(host = self.host, port = self.port, db = 0)
 
-  def createPoll(self, poll_data_raw):
+  def create_poll(self, poll_data_raw):
     """
     Create a new poll record on the DB. Takes a dictionary of poll data,
     generates keys for the poll, initiator, and participants, and stores it
@@ -64,7 +64,7 @@ class Model:
       'email': poll_data_raw['initiator'],
       'poll': poll_key
     }
-    self.setInitiator(init_key, init_data)
+    self.set_initiator(init_key, init_data)
 
     # Create participants' records
     for part_key in part_map:
@@ -74,11 +74,11 @@ class Model:
         'voted': False,
         'choice': None
       }
-      self.setParticipant(part_key, part_data_raw)
+      self.set_participant(part_key, part_data_raw)
 
     return poll_key
 
-  def setInitiator(self, init_key, init_data_raw):
+  def set_initiator(self, init_key, init_data_raw):
     """
     Create a new, or set an existing, Initiator record on the DB.
 
@@ -98,7 +98,7 @@ class Model:
     self.client.set(init_key, dumps(init_data_raw))
     return init_key
 
-  def setParticipant(self, part_key, part_data_raw):
+  def set_participant(self, part_key, part_data_raw):
     """
     Create a new Participant record on the DB.
 
@@ -121,7 +121,7 @@ class Model:
     self.client.set(part_key, dumps(part_data_raw))
     return part_key
 
-  def getPoll(self, poll_key):
+  def get_poll(self, poll_key):
     """
     Get and JSON decode a poll record.
 
@@ -132,14 +132,14 @@ class Model:
       A python dictionary of the record, or None if no record found.
     """
     if poll_key[:5] != 'poll_':
-      raise Exception('Incorrect key passed to getPoll(): ' + poll_key)
+      raise Exception('Incorrect key passed to get_poll(): ' + poll_key)
     poll_data = self.client.get(poll_key)
     if poll_data is None:
       return None
     else:
       return loads(poll_data)
 
-  def getParticipant(self, part_key):
+  def get_participant(self, part_key):
     """
     Get and JSON decode a participant record.
 
@@ -157,7 +157,7 @@ class Model:
     else:
       return loads(part_data)
 
-  def getInitiator(self, init_key):
+  def get_initiator(self, init_key):
     """
     Get and JSON decode a initiator record.
 
@@ -168,7 +168,7 @@ class Model:
       A python dictionary of the record, or None if no record found.
     """
     if init_key[:5] != 'init_':
-      raise Exception('Incorrect key passed to model.getInitiator(): ' +
+      raise Exception('Incorrect key passed to model.get_initiator(): ' +
                       init_key)
     init_data = self.client.get(init_key)
     if init_data is None:
@@ -188,15 +188,15 @@ class Model:
     Return:
       The participant data dictionary.
     """
-    part_data = self.getParticipant(part_key)
+    part_data = self.get_participant(part_key)
     poll_key = part_data['poll']
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     num_choices = len(poll_data['choices'])
     if(choice not in range(num_choices)):
       raise Exception('Invalid choice value ' + choice + ' provided to model.vote()')
     part_data['choice'] = choice
     part_data['voted'] = True
-    self.setParticipant(part_key, part_data)
+    self.set_participant(part_key, part_data)
     # TODO: Remove the following notification after the demo
     message = ('Participant ' + part_data['email'] + ' voted for ' +
               poll_data['choices'][part_data['choice']] + '.')
@@ -205,7 +205,7 @@ class Model:
       fh.write(dumps(log_stmt) + '\n')
     return part_data
 
-  def addPollParticipants(self, poll_key, new_participants):
+  def add_poll_participants(self, poll_key, new_participants):
     """
     Add new participants to an ongoing poll.
 
@@ -220,7 +220,7 @@ class Model:
         'part_0c9a1081760990bcc89ca94bb6bdd5710328f3ef': 'lluna@gmail.com'
       }
     """
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     participants = poll_data['participants']
     part_emails = participants.values()
     now_str = datetime.datetime.utcnow().isoformat()
@@ -239,11 +239,11 @@ class Model:
           'voted': False,
           'choice': None
         }
-        self.setParticipant(new_part_key, new_part_data_raw)
+        self.set_participant(new_part_key, new_part_data_raw)
         new_part_map[new_part_key] = email
     return new_part_map
 
-  def checkPollOngoing(self, poll_key):
+  def check_poll_ongoing(self, poll_key):
     """
     Checks if the poll is still ongoing (meaning there is still time left ).
 
@@ -253,7 +253,7 @@ class Model:
     Returns:
       Boolean. True if there is still time left in the poll. False otherwise.
     """
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     if not poll_data['ongoing']:
       return False
     now = datetime.datetime.utcnow()
@@ -264,19 +264,19 @@ class Model:
     else:
       return True
 
-  def closePoll(self, poll_key):
+  def close_poll(self, poll_key):
     """
     Sets the poll's 'ongoing' field to False
 
     Args:
       poll_key: The poll's key string.
     """
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     poll_data['ongoing'] = False
     self.client.set(poll_key, dumps(poll_data))
     # TODO: Notify the participants and send them the results: notify.emailResults()
 
-  def getAllVotes(self, poll_key):
+  def get_all_votes(self, poll_key):
     """
     Returns a list of all participants' choices.
 
@@ -286,15 +286,15 @@ class Model:
     Returns:
       A list where each element is one participant's integer choice
     """
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     part_keys = poll_data['participants']
     results = []
     for part_key in part_keys:
-      part_choice = self.getParticipant(part_key)['choice']
+      part_choice = self.get_participant(part_key)['choice']
       results.append(part_choice)
     return results
 
-  def deletePollPeople(self, poll_data):
+  def delete_poll_people(self, poll_data):
     """
     Deletes the Initiator's and all Participants' DB records for the given
     poll.
@@ -303,11 +303,11 @@ class Model:
       poll_data: The poll's data dictionary.
     """
     # Delete Initator and Participant data
-    self.deletePerson(poll_data['initiator'])
+    self.delete_person(poll_data['initiator'])
     for part_key in poll_data['participants'].keys():
-      self.deletePerson(part_key)
+      self.delete_person(part_key)
 
-  def deletePerson(self, key):
+  def delete_person(self, key):
     """
     Delete a participant or initiator record.
 
@@ -315,20 +315,20 @@ class Model:
       key: The particpant or initator key string
     """
     if key[:5] not in ['part_', 'init_']:
-      raise Exception('model.deletePerson() can only be performed on a' +
+      raise Exception('model.delete_person() can only be performed on a' +
                       'participant or initiator record.')
     # TODO: Delete this notification after testing is complete
     if key[:5] == 'part_':
-      message = 'Participant ' + self.getParticipant(key)['email'] + ' deleted.'
+      message = 'Participant ' + self.get_participant(key)['email'] + ' deleted.'
     else:
-      message = 'Initiator ' + self.getInitiator(key)['email'] + ' deleted.'
+      message = 'Initiator ' + self.get_initiator(key)['email'] + ' deleted.'
     log_stmt = {'message': message, 'links': None}
     with open('log.txt', 'a') as fh:
       fh.write(dumps(log_stmt) + '\n')
     # Delete the DB record
     self.client.delete(key)
 
-  def getParticipantVoteLinks(self, participants, poll_key):
+  def get_participant_vote_links(self, participants, poll_key):
     """
     Gets a list of participant email/vote-link pairs.
 
@@ -362,7 +362,7 @@ class Model:
       result.append(participant_pair)
     return result
 
-  def getPollProgress(self, poll_key):
+  def get_poll_progress(self, poll_key):
     """
     Return a tuple of the number of people who have voted and the number of
     poll participants
@@ -374,12 +374,12 @@ class Model:
       A tuple of integers of the the following form:
       (num_participants_voted, num_particpants)
     """
-    poll_data = self.getPoll(poll_key)
+    poll_data = self.get_poll(poll_key)
     part_keys = poll_data['participants'].keys()
     num_participants = len(part_keys)
     num_voted = 0
     for part_key in part_keys:
-      part_data = self.getParticipant(part_key)
+      part_data = self.get_participant(part_key)
       if part_data['voted']:
         num_voted += 1
     return (num_voted, num_participants)

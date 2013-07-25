@@ -46,14 +46,14 @@ def index_page():
       'type': 'plurality',
       'initiator': 'david.moench@arc90.com'
     }
-    poll_key = md.createPoll(test_poll_data)
-    poll_data = md.getPoll(poll_key)
+    poll_key = md.create_poll(test_poll_data)
+    poll_data = md.get_poll(poll_key)
     # Notify the partiicpants and initiator
-    part_link_list = md.getParticipantVoteLinks(poll_data['participants'], poll_key)
+    part_link_list = md.get_participant_vote_links(poll_data['participants'], poll_key)
     for part_link in part_link_list:
       notify.emailParticipant(part_link)
     init_key = poll_data['initiator']
-    init_data = md.getInitiator(init_key)
+    init_data = md.get_initiator(init_key)
     notify.emailInitiator(init_data['email'], init_key, poll_key)
     # TODO: Delete this notification when testing is complete
     message = 'Poll \'' + poll_data['name'] + '\' created.\n'
@@ -66,17 +66,17 @@ def index_page():
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results(poll_key):
   # Check if poll is ongoing
-  poll_data = md.getPoll(poll_key)
+  poll_data = md.get_poll(poll_key)
   if poll_data is None:
     # TODO: Handle better
     return 'Sorry, that poll doesn\'t exist!'
-  if md.checkPollOngoing(poll_key):
+  if md.check_poll_ongoing(poll_key):
     return 'Results are not available. \'' + poll_data['name'] + '\' is ongoing.'
   else:
     # TODO: The following line prevents deleting people's data while letting
     # the results page persist. A possible solution would be to add the calculated
     # stats to the poll data on close.
-    results = md.getAllVotes(poll_key)
+    results = md.get_all_votes(poll_key)
     percents = helpers.calcStats(results, len(poll_data['choices']))
     percents_readout = {}
     for choice in percents.keys():
@@ -99,9 +99,9 @@ def participantPollPage(poll_key, participant_key):
   'PUT' submits and stores their vote.
   """
   if request.method == 'GET':
-    poll_data = md.getPoll(poll_key)
+    poll_data = md.get_poll(poll_key)
     # Check poll is ongoing
-    if not md.checkPollOngoing(poll_key):
+    if not md.check_poll_ongoing(poll_key):
       page_data = {}
       page_data['poll_key'] = poll_key
       page_data['poll'] = poll_data
@@ -111,16 +111,16 @@ def participantPollPage(poll_key, participant_key):
     if participant_key not in poll_data['participants'].keys():
       raise Exception('Invalid participant key.')
     page_data = {}
-    page_data['participant'] = md.getParticipant(participant_key)
+    page_data['participant'] = md.get_participant(participant_key)
     page_data['poll'] = poll_data
     return render_template('vote.html', data = page_data)
   else: # request.method == POST
     # TODO: Reroute to a PUT request to store in Redis. More RESTful.
     md.vote(participant_key, int(request.form['choice']))
-    participant = md.getParticipant(participant_key)
+    participant = md.get_participant(participant_key)
     # TODO: Refresh and display an alert to the effect of 'Thanks for voting, you can resubmit your vote up until XXXX'.
     page_data = {}
-    page_data['poll'] = md.getPoll(poll_key)
+    page_data['poll'] = md.get_poll(poll_key)
     page_data['participant'] = participant
     page_data['status_msg'] = 'Thank you for voting ' + participant['email']
     return render_template('vote.html', data = page_data)
@@ -128,25 +128,25 @@ def participantPollPage(poll_key, participant_key):
 @app.route('/<poll_key>/admin', methods = ['GET'])
 def admin(poll_key):
   init_key = request.args.get('key')
-  poll_data = md.getPoll(poll_key)
+  poll_data = md.get_poll(poll_key)
   if poll_data is None:
     # TODO: Handle better
     return 'Sorry, that poll doesn\'t exist!'
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   # Check poll is ongoing
-  if not md.checkPollOngoing(poll_key):
+  if not md.check_poll_ongoing(poll_key):
     page_data = {}
     page_data['poll_key'] = poll_key
     page_data['poll'] = poll_data
     page_data['domain_root'] = config.conf['DOMAIN_ROOT']
     return render_template('pollclosed.html', data = page_data)
   else:
-    init_data = md.getInitiator(init_key)
+    init_data = md.get_initiator(init_key)
     page_data = {}
     page_data['poll'] = poll_data
     page_data['poll_key'] = poll_key
-    page_data['progress'] = md.getPollProgress(poll_key)
+    page_data['progress'] = md.get_poll_progress(poll_key)
     page_data['domain_root'] = config.conf['DOMAIN_ROOT']
     return render_template('polladmin.html', data = page_data)
 
@@ -154,7 +154,7 @@ def admin(poll_key):
 def addParticipants(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
   init_key = request.args.get('key')
-  poll_data = md.getPoll(poll_key)
+  poll_data = md.get_poll(poll_key)
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
@@ -163,24 +163,24 @@ def addParticipants(poll_key):
     new_participants = []
     for i in range(0, 10):
       new_participants.append('dummy' + str(i) + '@gmail.com')
-    new_part_map = md.addPollParticipants(poll_key, new_participants)
+    new_part_map = md.add_poll_participants(poll_key, new_participants)
     # Notify them
-    new_part_links_dict = md.getParticipantVoteLinks(new_part_map, poll_key)
+    new_part_links_dict = md.get_participant_vote_links(new_part_map, poll_key)
     for participant in new_part_links_dict:
       notify.emailParticipant(participant)
     # TODO: Redirect to admin page with alert that participants were added
     return 'Added Participants! (Not actually though...)'
 
 @app.route('/<poll_key>/close', methods = ['POST'])
-def closePoll(poll_key):
+def close_poll(poll_key):
   # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
   init_key = request.args.get('key')
-  poll_data = md.getPoll(poll_key)
+  poll_data = md.get_poll(poll_key)
   if init_key != poll_data['initiator']:
     return render_template('badinitiator.html')
   else:
     # Close Poll
-    md.closePoll(poll_key)
+    md.close_poll(poll_key)
     # TODO: Notify people
     message = 'Poll \'' + poll_data['name'] + '\' closed.\n'
     results_path = '/' + poll_key + '/results'
