@@ -20,8 +20,11 @@ import smtplib
 from email.mime.text import MIMEText
 import os
 
-# CONFIG
-md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
+# DB Connection
+REDIS_HOST = os.environ.get('REDIS_HOST')
+REDIS_PORT = int(os.environ.get('REDIS_PORT'))
+print (REDIS_HOST, REDIS_PORT)
+md = model.Model(REDIS_HOST, REDIS_PORT)
 
 # Mock out some data input. Assume its parsed correctly from the form
 name = 'Favorite Color'
@@ -63,8 +66,7 @@ def check(predicate):
         raise Exception('Check failed')
 
 def test_redis():
-    client = redis.StrictRedis(host=config.conf['REDIS_HOST'],
-                               port=config.conf['REDIS_PORT'], db=0)
+    client = redis.StrictRedis(host = REDIS_HOST, port = REDIS_PORT, db = 0)
     client.set('v1', 'test value 1')
     check(client.get('v1') == 'test value 1')
     client.delete('v1')
@@ -237,16 +239,13 @@ def test_delete_person():
 def test_smtp():
     from_addr = 'david.moench@arc90.com'
     to_addr = 'david.moench@arc90.com'
-    msg = MIMEText('Flask generated this email. Yay')
+    msg = MIMEText('The BallotBox test suite generated this email. Yay')
     msg['Subject'] = 'BallotBox Test Email'
-    msg['From'] = from_addr
-    msg['To'] = to_addr
-    # Fire up our SMTP server
-    print msg.as_string()
+    msg['From'], msg['To'] = from_addr, to_addr
+    # Make SMTP connection through mandrill
     s = smtplib.SMTP('smtp.mandrillapp.com', 587)
     username = os.environ.get('MANDRILL_USER')
     password = os.environ.get('MANDRILL_PASS')
-    print (username, password)
     s.login(username, password)
     s.sendmail(msg['From'], msg['To'], msg.as_string())
     s.quit()

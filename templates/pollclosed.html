@@ -1,6 +1,0 @@
-{% extends 'layout.html' %}
-
-{% block content %}
-<p>Sorry, the poll '{{ data['poll']['name'] }}' has already closed.</p>
-<p><a href='{{data['domain_root']}}/{{data['poll_key']}}/results' target='_blank'>See Results</a></p>
-{% endblock %}

@@ -17,12 +17,15 @@ import config
 import model
 import helpers
 import notify
+import os
 from json import dumps, loads
 
 app = Flask(__name__)
 
 # DB Connect
-md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
+REDIS_HOST = os.environ.get('REDIS_HOST')
+REDIS_PORT = int(os.environ.get('REDIS_PORT'))
+md = model.Model(REDIS_HOST, REDIS_PORT)
 
 @app.route('/', methods = ['GET', 'POST'])
 def index_route():
@@ -103,10 +106,10 @@ def participant_poll_route(poll_key, participant_key):
         # Check poll is ongoing
         if not md.check_poll_ongoing(poll_key):
             page_data = {}
-            page_data['poll_key'] = poll_key
-            page_data['poll'] = poll_data
-            page_data['domain_root'] = config.conf['DOMAIN_ROOT']
-            return render_template('pollclosed.html', data = page_data)
+            page_data['message'] = ('Sorry, \'' + poll_data['name'] +
+                                    '\' has been closed.')
+            page_data['link'] = None
+            return render_template('message.html', data = page_data)
         # Check valid participant
         if participant_key not in poll_data['participants'].keys():
             raise Exception('Invalid participant key.')
@@ -138,10 +141,14 @@ def admin_route(poll_key):
     # Check poll is ongoing
     if not md.check_poll_ongoing(poll_key):
         page_data = {}
-        page_data['poll_key'] = poll_key
-        page_data['poll'] = poll_data
-        page_data['domain_root'] = config.conf['DOMAIN_ROOT']
-        return render_template('pollclosed.html', data = page_data)
+        page_data['message'] = ('Sorry, \'' + poll_data['name'] +
+                        '\' has been closed.')
+        domain = config.conf['DOMAIN_ROOT']
+        page_data['link'] = {
+            'anchor': domain + '/' + poll_key + '/results',
+            'text': 'See Results'
+        }
+        return render_template('message.html', data = page_data)
     else:
         init_data = md.get_initiator(init_key)
         page_data = {}
