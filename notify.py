@@ -52,7 +52,7 @@ def emailInitiator(init_email, init_key, poll_key):
     'links': [
       {
         'href': config.conf['DOMAIN_ROOT'] + admin_link_path,
-        'text': 'Administrate'
+        'text': 'Administer'
       }
     ]
   }

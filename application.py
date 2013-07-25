@@ -8,6 +8,8 @@ Overview: A polling application that is simple and non-invasive for users
   (doesn't require account creation) yet prevents voter fraud like multiple
   voting.
 
+TODO: PEP8 EVERYTHING
+
 """
 
 from flask import Flask, url_for, render_template, request, redirect
@@ -23,7 +25,7 @@ app = Flask(__name__)
 md = model.Model(config.conf['REDIS_HOST'], config.conf['REDIS_PORT'])
 
 @app.route('/', methods = ['GET', 'POST'])
-def indexPage():
+def index_page():
   """
   The index page. 'GET' generates a form to describe a new poll.
   'POST' creates the new poll on the DB.
@@ -79,7 +81,7 @@ def results(poll_key):
     percents_readout = {}
     for choice in percents.keys():
       if choice == 'None':
-        percents_readout['Did Not Vote'] = percents['None']
+        percents_readout['Did Not Vote'] = round(percents['None'], 2)
       else:
         percents_readout[poll_data['choices'][choice]] = round(percents[choice], 2)
     page_data = {}
