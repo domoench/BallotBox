@@ -39,13 +39,15 @@ class Model:
                 'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
         """
         now = datetime.datetime.utcnow()
-        close = datetime.datetime.strptime(poll_data_raw['close'], '%Y-%m-%dT%H:%M:%S')
+        close = datetime.datetime.strptime(poll_data_raw['close'],
+                                           '%Y-%m-%dT%H:%M:%S')
         ongoing = close - now > datetime.timedelta(minutes = 0)
         init_key = helpers.generateKeyString(poll_data_raw['initiator'],
-                                                                                 now.isoformat(), 'init_')
+                                             now.isoformat(), 'init_')
         part_map = {}
         for email in poll_data_raw['participants']:
-            part_key = helpers.generateKeyString(email, now.isoformat(), 'part_')
+            part_key = helpers.generateKeyString(email, now.isoformat(),
+                                                 'part_')
             part_map[part_key] = email
         poll_data_processed = {
             'name': poll_data_raw['name'],
@@ -56,7 +58,8 @@ class Model:
             'initiator': init_key,
             'participants': part_map
         }
-        poll_key = helpers.generateKeyString(poll_data_raw['name'], now.isoformat(), 'poll_')
+        poll_key = helpers.generateKeyString(poll_data_raw['name'],
+                                             now.isoformat(), 'poll_')
         self.client.set(poll_key, dumps(poll_data_processed))
 
         # Create initiator's record
@@ -85,8 +88,8 @@ class Model:
         Args:
             init_key: The initiator's key string. For Example:
                 init_4dc6297e78836e8a5c48b0deb3b7cf3ace70b300
-            init_data_raw:  a python dictionary of validated, unprocessed initiator
-                data of the following form:
+            init_data_raw:  a python dictionary of validated, unprocessed
+                initiator data of the following form:
                 {
                     'email': 'david.moench@arc90.com',
                     'poll': 'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef'
@@ -105,8 +108,8 @@ class Model:
         Args:
             part_key: The participant's key string. For Example:
                 'part_247fd90ba860b79ef41e0770638c69bac98cbd94'
-            part_data_raw: a python dictionary of validated, unprocessed participant
-                data of the following form:
+            part_data_raw: a python dictionary of validated, unprocessed
+                participant data of the following form:
                 {
                     'email': 'alouie@gmail.com',
                     'poll': 'poll_0c9a1081760990bcc89ca94bb6bdd5710328f3ef',
@@ -169,7 +172,7 @@ class Model:
         """
         if init_key[:5] != 'init_':
             raise Exception('Incorrect key passed to model.get_initiator(): ' +
-                                            init_key)
+                            init_key)
         init_data = self.client.get(init_key)
         if init_data is None:
             return None
@@ -193,13 +196,14 @@ class Model:
         poll_data = self.get_poll(poll_key)
         num_choices = len(poll_data['choices'])
         if(choice not in range(num_choices)):
-            raise Exception('Invalid choice value ' + choice + ' provided to model.vote()')
+            raise Exception('Invalid choice value ' + choice +
+                            ' provided to model.vote()')
         part_data['choice'] = choice
         part_data['voted'] = True
         self.set_participant(part_key, part_data)
         # TODO: Remove the following notification after the demo
         message = ('Participant ' + part_data['email'] + ' voted for ' +
-                            poll_data['choices'][part_data['choice']] + '.')
+                    poll_data['choices'][part_data['choice']] + '.')
         log_stmt = {'message': message, 'links': None}
         with open(config.conf['LOG_FILE'], 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
@@ -229,7 +233,8 @@ class Model:
         for email in new_participants:
             if email not in part_emails: # No duplicate emails
                 # Add new participant key to the Poll
-                new_part_key = helpers.generateKeyString(email, now_str, 'part_')
+                new_part_key = helpers.generateKeyString(email, now_str,
+                                                        'part_')
                 participants[new_part_key] = email
                 self.client.set(poll_key, dumps(poll_data))
                 # Create new participant record
@@ -245,19 +250,21 @@ class Model:
 
     def check_poll_ongoing(self, poll_key):
         """
-        Checks if the poll is still ongoing (meaning there is still time left ).
+        Checks if the poll is still ongoing (meaning there is still time left).
 
         Args:
             poll_key: The poll's key string.
 
         Returns:
-            Boolean. True if there is still time left in the poll. False otherwise.
+            Boolean. True if there is still time left in the poll. False
+            otherwise.
         """
         poll_data = self.get_poll(poll_key)
         if not poll_data['ongoing']:
             return False
         now = datetime.datetime.utcnow()
-        close = datetime.datetime.strptime(poll_data['close'], '%Y-%m-%dT%H:%M:%S')
+        close = datetime.datetime.strptime(poll_data['close'],
+                                          '%Y-%m-%dT%H:%M:%S')
         time_remains = close - now > datetime.timedelta(minutes = 0)
         if not time_remains:
             return False
@@ -319,9 +326,11 @@ class Model:
                                             'participant or initiator record.')
         # TODO: Delete this notification after testing is complete
         if key[:5] == 'part_':
-            message = 'Participant ' + self.get_participant(key)['email'] + ' deleted.'
+            message = ('Participant ' + self.get_participant(key)['email'] +
+                      ' deleted.')
         else:
-            message = 'Initiator ' + self.get_initiator(key)['email'] + ' deleted.'
+            message = ('Initiator ' + self.get_initiator(key)['email'] +
+                      ' deleted.')
         log_stmt = {'message': message, 'links': None}
         with open('log.txt', 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
