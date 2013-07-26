@@ -107,6 +107,7 @@ def results_route(poll_key):
 def admin_route(poll_key):
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
+    # Validate
     page_data = {'link': None}
     no_good = False
     # Check poll exists
@@ -129,6 +130,7 @@ def admin_route(poll_key):
         }
     if no_good:
         return render_template('message.html', data = page_data)
+    # Ok, we're valid!
     else:
         init_data = md.get_initiator(init_key)
         page_data['poll'] = poll_data
@@ -197,19 +199,27 @@ def participant_poll_route(poll_key, participant_key):
     The participants' voting page. 'GET' generates the participant's ballot.
     'PUT' submits and stores their vote.
     """
+    poll_data = md.get_poll(poll_key)
+    # Validate
+    page_data = {'link': None}
+    no_good = False
+    # Check poll exists
+    if poll_data is None:
+        no_good = True
+        page_data['message'] = 'Sorry, that poll doesn\'t exist'
+    # Check requester is a valid participant
+    elif participant_key not in poll_data['participants'].keys():
+        no_good = True
+        page_data['message'] = 'Sorry, you aren\'t a participant of this poll'
+    # Check poll is ongoing
+    elif not md.check_poll_ongoing(poll_key):
+        no_good = True
+        page_data['message'] = ('Sorry, \'' + poll_data['name'] +
+                                '\' has been closed.')
+    if no_good:
+        return render_template('message.html', data = page_data)
+    # Ok, we're valid!
     if request.method == 'GET':
-        poll_data = md.get_poll(poll_key)
-        # Check poll is ongoing
-        if not md.check_poll_ongoing(poll_key):
-            page_data = {}
-            page_data['message'] = ('Sorry, \'' + poll_data['name'] +
-                                    '\' has been closed.')
-            page_data['link'] = None
-            return render_template('message.html', data = page_data)
-        # Check valid participant
-        if participant_key not in poll_data['participants'].keys():
-            raise Exception('Invalid participant key: ' + participant_key)
-        page_data = {}
         page_data['participant'] = md.get_participant(participant_key)
         page_data['poll'] = poll_data
         return render_template('vote.html', data = page_data)
