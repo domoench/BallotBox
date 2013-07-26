@@ -166,7 +166,9 @@ def close_poll_route(poll_key):
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
     if init_key != poll_data['initiator']:
-        return render_template('badinitiator.html')
+        page_data = {'link': None}
+        page_data['message'] = 'Sorry, you don\'t have poll admin creds.'
+        return render_template('message.html', data = page_data)
     else:
         # Close Poll
         md.close_poll(poll_key)
@@ -188,7 +190,7 @@ def close_poll_route(poll_key):
         # TODO: Redirect to results page
         return 'Closed Poll!'
 
-@app.route('/<regex("poll_[a-zA-Z0-9]*"):poll_key>/<regex("part_[a-zA-Z0-9]*"):participant_key>',
+@app.route('/<poll_key>/<regex("part_[a-zA-Z0-9]*"):participant_key>',
            methods = ['GET', 'POST'])
 def participant_poll_route(poll_key, participant_key):
     """
