@@ -54,7 +54,7 @@ def runTests():
     # test_delete_poll_people() TODO
     test_calc_stats()
     test_get_all_votes()
-    test_get_participant_vote_links()
+    # test_get_participant_vote_links()
     test_get_poll_progress()
     test_delete_person()
     test_smtp()

@@ -5,6 +5,7 @@
 """
 
 import hashlib
+from base64 import urlsafe_b64encode
 
 def generateKeyString(seed, time_now, prefix):
     """
@@ -19,8 +20,10 @@ def generateKeyString(seed, time_now, prefix):
     """
     if prefix not in ['poll_', 'init_', 'part_']:
         raise Exception('Invalid key prefix: ' + prefix)
-    hash_token = hashlib.sha256(seed + time_now).hexdigest()
-    return prefix + hash_token
+    hash_token = hashlib.sha1(seed + time_now).hexdigest()
+    hash_int = int(hash_token, 16) % (10 ** 12)
+    hash_hex = hex(hash_int)
+    return prefix + urlsafe_b64encode(hash_hex).rstrip('=')
 
 def calcStats(vote_list, num_choices):
     """
