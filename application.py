@@ -13,6 +13,7 @@ TODO: PEP8 EVERYTHING
 """
 
 from flask import Flask, url_for, render_template, request, redirect
+from werkzeug.routing import BaseConverter
 import config
 import model
 import helpers
@@ -21,6 +22,13 @@ import os
 from json import dumps, loads
 
 app = Flask(__name__)
+
+# Routing Converters
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+app.url_map.converters['regex'] = RegexConverter
 
 # DB Connect
 REDIS_HOST = os.environ.get('REDIS_HOST')
@@ -95,40 +103,6 @@ def results_route(poll_key):
         return render_template('results.html', data = page_data)
         # TODO: Remember to handle the case of a tie somewhere
 
-@app.route('/<poll_key>/<participant_key>', methods = ['GET', 'POST', 'PUT'])
-def participant_poll_route(poll_key, participant_key):
-    """
-    The participants' voting page. 'GET' generates the participant's ballot.
-    'PUT' submits and stores their vote.
-    """
-    if request.method == 'GET':
-        poll_data = md.get_poll(poll_key)
-        # Check poll is ongoing
-        if not md.check_poll_ongoing(poll_key):
-            page_data = {}
-            page_data['message'] = ('Sorry, \'' + poll_data['name'] +
-                                    '\' has been closed.')
-            page_data['link'] = None
-            return render_template('message.html', data = page_data)
-        # Check valid participant
-        if participant_key not in poll_data['participants'].keys():
-            raise Exception('Invalid participant key.')
-        page_data = {}
-        page_data['participant'] = md.get_participant(participant_key)
-        page_data['poll'] = poll_data
-        return render_template('vote.html', data = page_data)
-    else: # request.method == POST
-        # TODO: Reroute to a PUT request to store in Redis. More RESTful.
-        md.vote(participant_key, int(request.form['choice']))
-        participant = md.get_participant(participant_key)
-        # TODO: Refresh and display an alert to the effect of 'Thanks for
-        # voting, you can resubmit your vote up until XXXX'.
-        page_data = {}
-        page_data['poll'] = md.get_poll(poll_key)
-        page_data['participant'] = participant
-        page_data['status_msg'] = 'Thank you for voting ' + participant['email']
-        return render_template('vote.html', data = page_data)
-
 @app.route('/<poll_key>/admin', methods = ['GET'])
 def admin_route(poll_key):
     init_key = request.args.get('key')
@@ -169,7 +143,9 @@ def add_participants_route(poll_key):
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
     if init_key != poll_data['initiator']:
-        return render_template('badinitiator.html')
+        page_data = {'link': None}
+        page_data['message'] = 'Sorry, you don\'t have poll admin creds.'
+        return render_template('message.html', data = page_data)
     else:
         # Add Participants
         # TODO replace the dummy new_particpants data with data passed in from the admin page form.
@@ -211,6 +187,41 @@ def close_poll_route(poll_key):
         # TODO: Delete people's info
         # TODO: Redirect to results page
         return 'Closed Poll!'
+
+@app.route('/<regex("poll_[a-zA-Z0-9]*"):poll_key>/<regex("part_[a-zA-Z0-9]*"):participant_key>',
+           methods = ['GET', 'POST'])
+def participant_poll_route(poll_key, participant_key):
+    """
+    The participants' voting page. 'GET' generates the participant's ballot.
+    'PUT' submits and stores their vote.
+    """
+    if request.method == 'GET':
+        poll_data = md.get_poll(poll_key)
+        # Check poll is ongoing
+        if not md.check_poll_ongoing(poll_key):
+            page_data = {}
+            page_data['message'] = ('Sorry, \'' + poll_data['name'] +
+                                    '\' has been closed.')
+            page_data['link'] = None
+            return render_template('message.html', data = page_data)
+        # Check valid participant
+        if participant_key not in poll_data['participants'].keys():
+            raise Exception('Invalid participant key: ' + participant_key)
+        page_data = {}
+        page_data['participant'] = md.get_participant(participant_key)
+        page_data['poll'] = poll_data
+        return render_template('vote.html', data = page_data)
+    else: # request.method == POST
+        # TODO: Reroute to a PUT request to store in Redis. More RESTful.
+        md.vote(participant_key, int(request.form['choice']))
+        participant = md.get_participant(participant_key)
+        # TODO: Refresh and display an alert to the effect of 'Thanks for
+        # voting, you can resubmit your vote up until XXXX'.
+        page_data = {}
+        page_data['poll'] = md.get_poll(poll_key)
+        page_data['participant'] = participant
+        page_data['status_msg'] = 'Thank you for voting ' + participant['email']
+        return render_template('vote.html', data = page_data)
 
 # TODO: Remove this route after emailing is implemented
 @app.route('/log', methods = ['GET'])
