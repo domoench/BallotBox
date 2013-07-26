@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<p>{{ data['message'] }}</p>
+
+{% if data['link'] is not none %}
+  <p>
+    <a href='{{data['link']['anchor']}}'>
+      {{ data['link']['text'] }}
+    </a>
+  </p>
+{% endif %}
+
+{% endblock %}
