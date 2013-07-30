@@ -2,7 +2,10 @@
 (function() {
   define('pollCreate', ['jquery', 'underscore', 'serialize'], function($, _, serialize) {
     console.log('pollCreate.coffee has compiled and is running!');
-    serialize.getFormData('form fieldset');
+    $('form').submit(function(event) {
+      serialize.getFormData($(this).find('fieldset'));
+      return false;
+    });
     return null;
   });
 

@@ -16,15 +16,40 @@
                                         to be serialized.
         */
 
-        var elements, inputs,
+        var elements, inputs, pair_list, result_obj,
           _this = this;
 
         elements = $(form_selector).children();
         inputs = _.filter(elements, function(element) {
           return _.contains(_this.elements_of_interest, $(element).prop('localName'));
         });
-        console.log(inputs);
+        pair_list = _.map(inputs, function(elem) {
+          var $elem;
+
+          $elem = $(elem);
+          return [_this.getInputKey($elem), _this.getInputValue($elem)];
+        });
+        result_obj = _.object(pair_list);
+        console.log(result_obj);
         return null;
+      },
+      getInputKey: function($elem) {
+        /*
+          Return the name key of a jQuery input element.
+        
+          @param {jQuery} $elem
+          @return {String}
+        */
+        return $elem.attr('name');
+      },
+      getInputValue: function($elem) {
+        /*
+          Return the value attribute of a jQuery input element.
+        
+          @param {jQuery} $elem
+          @return {String}
+        */
+        return $elem.val();
       }
     };
   });

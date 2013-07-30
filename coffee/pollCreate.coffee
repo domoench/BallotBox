@@ -1,4 +1,6 @@
 define 'pollCreate', [ 'jquery', 'underscore', 'serialize' ], ( $, _, serialize ) ->
   console.log 'pollCreate.coffee has compiled and is running!'
-  serialize.getFormData('form fieldset')
+  $('form').submit ( event ) ->
+    serialize.getFormData( $(this).find 'fieldset' )
+    false # Prevent default submit
   null
