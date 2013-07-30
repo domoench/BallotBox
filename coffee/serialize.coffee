@@ -8,7 +8,8 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
     getFormData : ( form_selector ) ->
       ###
         @param {String} form_selector The jQuery selector string for the form
-                                      to be serialized.
+                                      fieldset to be serialized.
+        @return {Object} A serialized object representation of the form
       ###
       elements = $( form_selector ).children()
       inputs = _.filter elements, ( element ) =>
@@ -18,8 +19,9 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
         [ (@getInputKey $elem), (@getInputValue $elem) ]
       result_obj = _.object pair_list
       console.log result_obj
-      null
+      result_obj
 
+    # TODO: Is it even worth having getInputKey and getInputValue as methods?
     getInputKey : ( $elem ) ->
       ###
         Return the name key of a jQuery input element.

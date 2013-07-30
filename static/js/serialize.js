@@ -13,7 +13,8 @@
       getFormData: function(form_selector) {
         /*
           @param {String} form_selector The jQuery selector string for the form
-                                        to be serialized.
+                                        fieldset to be serialized.
+          @return {Object} A serialized object representation of the form
         */
 
         var elements, inputs, pair_list, result_obj,
@@ -31,7 +32,7 @@
         });
         result_obj = _.object(pair_list);
         console.log(result_obj);
-        return null;
+        return result_obj;
       },
       getInputKey: function($elem) {
         /*
