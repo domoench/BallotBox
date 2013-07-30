@@ -15,10 +15,11 @@ BallotBox's memory.
 
 Components
 ----------
-* [CoffeeScript](http://coffeescript.org/)
 * [Python](http://www.python.org/)
 * [Flask](http://flask.pocoo.org/)
 * [Redis](http://redis.io/)
+* [CoffeeScript](http://coffeescript.org/)
+* [RequireJS](http://requirejs.org)
 
 Installation
 ------------
