@@ -4,7 +4,7 @@
 define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
   serialize =
     elements_of_interest : [ 'input', 'select' ]
-    grab : ( form_selector ) ->
+    getFormData : ( form_selector ) ->
       ###
         @param {String} form_selector The jQuery selector string for the form
                                       to be serialized.

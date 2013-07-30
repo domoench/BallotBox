@@ -31,3 +31,11 @@ Create the following UNIX environment variables to pull in credentials:
 
 1. MANDRILL_USER: Mandrill email service username
 2. MANDRILL_PASS: Mandrill email service password
+
+Development Notes
+-----------------
+Things to spin up:
+* virtualenv: `. venv/bin/activate`
+* Flask App: `python application.py`
+* redis server: `redis-server`
+* CoffeeScript auto compile: `cake watch`
