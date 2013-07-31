@@ -101,7 +101,8 @@ fieldset input, select {
 }
 
 /* Poll Creation Page */
-#content.poll-create-page {
+#content.poll-create-page fieldset inputtext {
+    height: 30px;
 }
 
 /* Voting Page */

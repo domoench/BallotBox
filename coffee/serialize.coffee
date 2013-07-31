@@ -3,7 +3,7 @@
 ###
 define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
   serialize =
-    elements_of_interest : [ 'input', 'select' ] #TODO: This is selecting the input:submit element
+    elements_of_interest : [ 'input', 'select', 'textarea' ] #TODO: This is selecting the input:submit element
 
     getFormData : ( form_selector ) ->
       ###
@@ -18,7 +18,6 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
         $elem = $( elem )
         [ (@getInputKey $elem), (@getInputValue $elem) ]
       result_obj = _.object pair_list
-      console.log result_obj
       result_obj
 
     # TODO: Is it even worth having getInputKey and getInputValue as methods?

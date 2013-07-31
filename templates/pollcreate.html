@@ -4,18 +4,26 @@
   <form action=''>
     <fieldset>
       <legend>Create A New Poll</legend>
-      Poll Name: <input name='name'><br>
-      Choices: <input name='choices'><br>
-      Close: <input name='close'><br>
-      Your Email: <input name='initiator_email'><br>
-      Participant Emails: <input name='participant_emails'><br>
-      Poll Type: <select name='poll_type'>
-        <option value='plurality'>Plurality Vote</option>
-        <option value='majority'>Majority Vote</option>
-        <option value='pref-plurality'>Preferential Plurality Vote</option>
-      </select>
-        <br>
-      <input type='submit' value='submit' >
+      Poll Name:
+        <br><input name='name'><br>
+      Choices: <br>
+            <input name='choice1' class='choice' index=1><br>
+        <br><input name='choice2' class='choice' index=2><br>
+        <br><input name='choice3' class='choice' index=3><br>
+        <a href='#' id='add-button' class='button'>Add</a><br>
+      Close: <br>
+        <input name='close'><br>
+      Your Email: <br>
+        <input name='initiator_email'><br>
+      Participant Emails: <br>
+        <textarea name='participant_emails' cols='60' rows='10'></textarea><br>
+      Poll Type: <br>
+        <select name='poll_type'>
+          <option value='plurality'>Plurality Vote</option>
+          <option value='majority'>Majority Vote</option>
+          <option value='pref-plurality'>Preferential Plurality Vote</option>
+        </select><br>
+      <input type='submit' value='submit'>
     </fieldset>
   </form>
 </div>
