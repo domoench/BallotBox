@@ -38,9 +38,7 @@
         participants = _.filter(inputs, function(input) {
           return ($(input).prop('localName')) === 'textarea';
         });
-        console.log('participants:', participants);
         other_inputs = _.difference(inputs, choices, participants);
-        console.log('other_inputs', other_inputs);
         other_pair_list = _.map(other_inputs, function(elem) {
           var $elem;
 
@@ -48,18 +46,17 @@
           return [_this.getInputKey($elem), _this.getInputValue($elem)];
         });
         other_pair_obj = _.object(other_pair_list);
-        console.log('other_pair_obj', other_pair_obj);
         choices_obj = {
           choices: _.map(choices, function(elem) {
             return $(elem).val();
           })
         };
         part_string = $(participants[0]).val();
-        part_list = part_string.split(/[\s\n,]*/);
+        part_list = part_string.split(/[\s\n,]+/);
+        console.log('part_list', part_list);
         part_obj = {
           participants: part_list
         };
-        console.log('part_obj', part_obj);
         return result_obj = _.extend(choices_obj, part_obj, other_pair_obj);
       },
       commaStringToList: function(raw_form_object) {

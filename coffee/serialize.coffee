@@ -23,30 +23,26 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
       inputs = _.filter elements, ( element ) =>
         _.contains @elements_of_interest, $( element ).prop 'localName'
       console.log 'inputs:', inputs
-      # Get all inputs that are choices
       choices = _.filter inputs, ( input ) ->
         ( $(input).prop 'className' ) is 'choice'
       # Get participants input
       participants = _.filter inputs, ( input ) ->
         ( $(input).prop 'localName' ) is 'textarea'
-      console.log 'participants:', participants
-      # Remove the choice and participant elements from the inputs
+      # Remove the choice and participant elements from inputs
       other_inputs = _.difference( inputs, choices, participants )
-      console.log 'other_inputs', other_inputs
       # Serialize inputs
       other_pair_list = _.map other_inputs, ( elem ) =>
         $elem = $( elem )
         [ (@getInputKey $elem), (@getInputValue $elem) ]
       other_pair_obj = _.object other_pair_list
-      console.log 'other_pair_obj', other_pair_obj
       choices_obj =
-        choices: _.map choices, ( elem ) =>
+        choices: _.map choices, ( elem ) ->
           $( elem ).val()
       part_string = $( participants[0] ).val()
-      part_list = part_string.split /[\s\n,]*/
+      part_list = part_string.split /[\s\n,]+/
+      console.log 'part_list', part_list
       part_obj =
         participants: part_list
-      console.log 'part_obj', part_obj
       result_obj = _.extend choices_obj, part_obj, other_pair_obj
 
     commaStringToList: ( raw_form_object ) ->
