@@ -7,7 +7,7 @@
       last_choice = $('fieldset .choice').last();
       index = last_choice.attr('index');
       new_index = (parseInt(index)) + 1;
-      last_choice.after('<br><input name=\'choice' + new_index + '\' class=\'choice\' index=\'' + new_index + '\'><br>');
+      last_choice.after('<br><input name=\'choice[' + new_index + ']\' class=\'choice\' index=\'' + new_index + '\'>');
       console.log(last_choice);
       return null;
     });

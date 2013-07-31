@@ -7,18 +7,18 @@
       Poll Name:
         <br><input name='name'><br>
       Choices: <br>
-            <input name='choice1' class='choice' index=1><br>
-        <br><input name='choice2' class='choice' index=2><br>
-        <br><input name='choice3' class='choice' index=3><br>
+            <input name='choice[]' class='choice' index='0'>
+        <br><input name='choice[]' class='choice' index='1'>
+        <br><input name='choice[]' class='choice' index='2'>
         <a href='#' id='add-button' class='button'>Add</a><br>
       Close: <br>
         <input name='close'><br>
       Your Email: <br>
-        <input name='initiator_email'><br>
+        <input name='initiator'><br>
       Participant Emails: <br>
-        <textarea name='participant_emails' cols='60' rows='10'></textarea><br>
+        <textarea name='participants' cols='60' rows='10'></textarea><br>
       Poll Type: <br>
-        <select name='poll_type'>
+        <select name='type'>
           <option value='plurality'>Plurality Vote</option>
           <option value='majority'>Majority Vote</option>
           <option value='pref-plurality'>Preferential Plurality Vote</option>
@@ -30,7 +30,7 @@
 
 <script>
   require(['pollCreate'], function(pollCreate) {
-    console.log('pollCreate.js has been required in pollcreate.html');
+    // TODO: Anything here?
   });
 </script>
 {% endblock %}

@@ -179,12 +179,10 @@ def close_poll_route(poll_key):
         results_path = '/' + poll_key + '/results'
         log_stmt = {
             'message': message,
-            'links': [
-                {
-                    'href': config.conf['DOMAIN_ROOT'] + results_path,
-                    'text': 'See Results'
-                }
-            ]
+            'links': [{
+                'href': config.conf['DOMAIN_ROOT'] + results_path,
+                'text': 'See Results'
+            }]
         }
         with open(config.conf['LOG_FILE'], 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')

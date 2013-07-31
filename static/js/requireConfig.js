@@ -8,8 +8,6 @@
     }
   });
 
-  require(['jquery', 'underscore'], function($, _) {
-    return console.log('requireConfig.coffee has been run. jQuery and Underscore have been required.');
-  });
+  require(['jquery', 'underscore'], function($, _) {});
 
 }).call(this);

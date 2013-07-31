@@ -7,18 +7,61 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
 
     getFormData : ( form_selector ) ->
       ###
+        Serialize the input from an HTML form into a javascript object. Inputs
+        with the class 'choice' are packaged together as a list and assigned
+        to the 'choices' property of the result object. All other properties
+        derive their keys and values directly from the form elements' name and
+        value.
+
         @param {String} form_selector The jQuery selector string for the form
                                       fieldset to be serialized.
-        @return {Object} A serialized object representation of the form
+        @return {Object} result_obj A serialized object representation of the
+                                    form data
       ###
       elements = $( form_selector ).children()
+      # Get object of all input elements
       inputs = _.filter elements, ( element ) =>
         _.contains @elements_of_interest, $( element ).prop 'localName'
-      pair_list = _.map inputs, ( elem ) =>
+      console.log 'inputs:', inputs
+      # Get all inputs that are choices
+      choices = _.filter inputs, ( input ) ->
+        ( $(input).prop 'className' ) is 'choice'
+      # Get participants input
+      participants = _.filter inputs, ( input ) ->
+        ( $(input).prop 'localName' ) is 'textarea'
+      console.log 'participants:', participants
+      # Remove the choice and participant elements from the inputs
+      other_inputs = _.difference( inputs, choices, participants )
+      console.log 'other_inputs', other_inputs
+      # Serialize inputs
+      other_pair_list = _.map other_inputs, ( elem ) =>
         $elem = $( elem )
         [ (@getInputKey $elem), (@getInputValue $elem) ]
-      result_obj = _.object pair_list
-      result_obj
+      other_pair_obj = _.object other_pair_list
+      console.log 'other_pair_obj', other_pair_obj
+      choices_obj =
+        choices: _.map choices, ( elem ) =>
+          $( elem ).val()
+      part_string = $( participants[0] ).val()
+      part_list = part_string.split /[\s\n,]*/
+      part_obj =
+        participants: part_list
+      console.log 'part_obj', part_obj
+      result_obj = _.extend choices_obj, part_obj, other_pair_obj
+
+    commaStringToList: ( raw_form_object ) ->
+      ###
+        Package an object output by getFormData into the format expected by
+        the BalltoBox Flask backend.
+
+        @param {Object} raw_form_obj An object of form input data
+        @return {Object} packaged_obj An object of form input data formatted
+                                         for the BallotBox poll creation method
+                                         on the backend.
+      ###
+      packaged_obj = _.clone( raw_form_object )
+      processed_participants = []
+
 
     # TODO: Is it even worth having getInputKey and getInputValue as methods?
     getInputKey : ( $elem ) ->

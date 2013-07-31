@@ -10,4 +10,3 @@ require.config(
 
 require [ 'jquery', 'underscore' ], ( $, _ ) ->
   # TODO: Any additional setup code here
-  console.log 'requireConfig.coffee has been run. jQuery and Underscore have been required.'

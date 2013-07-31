@@ -12,26 +12,71 @@
       elements_of_interest: ['input', 'select', 'textarea'],
       getFormData: function(form_selector) {
         /*
+          Serialize the input from an HTML form into a javascript object. Inputs
+          with the class 'choice' are packaged together as a list and assigned
+          to the 'choices' property of the result object. All other properties
+          derive their keys and values directly from the form elements' name and
+          value.
+        
           @param {String} form_selector The jQuery selector string for the form
                                         fieldset to be serialized.
-          @return {Object} A serialized object representation of the form
+          @return {Object} result_obj A serialized object representation of the
+                                      form data
         */
 
-        var elements, inputs, pair_list, result_obj,
+        var choices, choices_obj, elements, inputs, other_inputs, other_pair_list, other_pair_obj, part_list, part_obj, part_string, participants, result_obj,
           _this = this;
 
         elements = $(form_selector).children();
         inputs = _.filter(elements, function(element) {
           return _.contains(_this.elements_of_interest, $(element).prop('localName'));
         });
-        pair_list = _.map(inputs, function(elem) {
+        console.log('inputs:', inputs);
+        choices = _.filter(inputs, function(input) {
+          return ($(input).prop('className')) === 'choice';
+        });
+        participants = _.filter(inputs, function(input) {
+          return ($(input).prop('localName')) === 'textarea';
+        });
+        console.log('participants:', participants);
+        other_inputs = _.difference(inputs, choices, participants);
+        console.log('other_inputs', other_inputs);
+        other_pair_list = _.map(other_inputs, function(elem) {
           var $elem;
 
           $elem = $(elem);
           return [_this.getInputKey($elem), _this.getInputValue($elem)];
         });
-        result_obj = _.object(pair_list);
-        return result_obj;
+        other_pair_obj = _.object(other_pair_list);
+        console.log('other_pair_obj', other_pair_obj);
+        choices_obj = {
+          choices: _.map(choices, function(elem) {
+            return $(elem).val();
+          })
+        };
+        part_string = $(participants[0]).val();
+        part_list = part_string.split(/[\s\n,]*/);
+        part_obj = {
+          participants: part_list
+        };
+        console.log('part_obj', part_obj);
+        return result_obj = _.extend(choices_obj, part_obj, other_pair_obj);
+      },
+      commaStringToList: function(raw_form_object) {
+        /*
+          Package an object output by getFormData into the format expected by
+          the BalltoBox Flask backend.
+        
+          @param {Object} raw_form_obj An object of form input data
+          @return {Object} packaged_obj An object of form input data formatted
+                                           for the BallotBox poll creation method
+                                           on the backend.
+        */
+
+        var packaged_obj, processed_participants;
+
+        packaged_obj = _.clone(raw_form_object);
+        return processed_participants = [];
       },
       getInputKey: function($elem) {
         /*
