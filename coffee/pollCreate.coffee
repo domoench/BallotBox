@@ -10,8 +10,18 @@ define 'pollCreate', [ 'jquery', 'underscore', 'serialize' ], ( $, _, serialize 
     null
 
   # On submit, parse form data into a javascript Object
-  $('form').submit ( event ) ->
+  $( 'form' ).submit ( event ) ->
     form_obj = serialize.getFormData( $(this).find 'fieldset' )
     console.log form_obj
+    ajax_settings =
+      type: 'PUT'
+      url: ''
+      contentType: 'application/json'
+      data: JSON.stringify form_obj
+    promise = $.ajax ajax_settings
+    promise.done ( data ) ->
+      $( '#content' ).html '<p>Form Created</p>'
+    promise.fail ( jqXHR, textStatus, errorThrown ) ->
+      throw new Error( errorThrown )
     false # Prevent default submit
   null

@@ -35,7 +35,7 @@ REDIS_HOST = os.environ.get('REDIS_HOST')
 REDIS_PORT = int(os.environ.get('REDIS_PORT'))
 md = model.Model(REDIS_HOST, REDIS_PORT)
 
-@app.route('/', methods = ['GET', 'POST'])
+@app.route('/', methods = ['GET', 'PUT'])
 def index_route():
     """
     The index page. 'GET' generates a form to describe a new poll.
@@ -43,12 +43,12 @@ def index_route():
     """
     if request.method == 'GET':
         return render_template('pollcreate.html')
-    else: # POST
+    else: # PUT
+        put_data_dict = loads(request.data)
         poll_data_raw = {}
-        for key in request.form:
-            poll_data_raw[key] = request.form[key]
-        # TODO: Use poll_data_raw from form instead of the following test data
-        # once you get front end form set up and validating correctly.
+        for key in put_data_dict.keys():
+            poll_data_raw[key] = put_data_dict[key]
+        """
         test_poll_data = {
             'name': 'Favorite Color',
             'choices': ['Red', 'Blue', 'Green', 'Teal'],
@@ -58,6 +58,8 @@ def index_route():
             'initiator': 'david.moench@arc90.com'
         }
         poll_key = md.create_poll(test_poll_data)
+        """
+        poll_key = md.create_poll(poll_data_raw)
         poll_data = md.get_poll(poll_key)
         # Notify the particpants and initiator
         part_link_list = md.get_participant_vote_links(poll_data['participants'], poll_key)
@@ -71,8 +73,8 @@ def index_route():
         log_stmt = {'message': message, 'links': None}
         with open(config.conf['LOG_FILE'], 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
-        # TODO: Change to redirect to admin page after testing is complete.
-        return redirect(url_for('log_route'))
+        # TODO: how to return success?
+        return 'success'
 
 @app.route('/<poll_key>/results', methods = ['GET'])
 def results_route(poll_key):

@@ -40,24 +40,9 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
           $( elem ).val()
       part_string = $( participants[0] ).val()
       part_list = part_string.split /[\s\n,]+/
-      console.log 'part_list', part_list
       part_obj =
         participants: part_list
       result_obj = _.extend choices_obj, part_obj, other_pair_obj
-
-    commaStringToList: ( raw_form_object ) ->
-      ###
-        Package an object output by getFormData into the format expected by
-        the BalltoBox Flask backend.
-
-        @param {Object} raw_form_obj An object of form input data
-        @return {Object} packaged_obj An object of form input data formatted
-                                         for the BallotBox poll creation method
-                                         on the backend.
-      ###
-      packaged_obj = _.clone( raw_form_object )
-      processed_participants = []
-
 
     # TODO: Is it even worth having getInputKey and getInputValue as methods?
     getInputKey : ( $elem ) ->

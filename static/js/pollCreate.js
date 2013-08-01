@@ -12,10 +12,23 @@
       return null;
     });
     $('form').submit(function(event) {
-      var form_obj;
+      var ajax_settings, form_obj, promise;
 
       form_obj = serialize.getFormData($(this).find('fieldset'));
       console.log(form_obj);
+      ajax_settings = {
+        type: 'PUT',
+        url: '',
+        contentType: 'application/json',
+        data: JSON.stringify(form_obj)
+      };
+      promise = $.ajax(ajax_settings);
+      promise.done(function(data) {
+        return $('#content').html('<p>Form Created</p>');
+      });
+      promise.fail(function(jqXHR, textStatus, errorThrown) {
+        throw new Error(errorThrown);
+      });
       return false;
     });
     return null;
