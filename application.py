@@ -137,7 +137,8 @@ def admin_route(poll_key):
 
 @app.route('/<poll_key>/participants', methods = ['POST'])
 def add_participants_route(poll_key):
-    # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
+    # TODO: Rethink this route's return values now that we're getting here
+    # via an AJAX request. Same for close route.
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
     if init_key != poll_data['initiator']:
