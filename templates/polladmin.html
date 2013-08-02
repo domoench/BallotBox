@@ -3,15 +3,15 @@
 {% block content %}
 <h2>{{ data['poll']['name'] }}: Admin Page</h2>
 <div id='content' class='poll-admin-page'>
-  <form id='admin_add' method='post'
+  <form id='admin-add' method='post'
     action='{{data['domain_root']}}/{{data['poll_key']}}/add?key={{data['poll']['initiator']}}'>
     <fieldset>
       <legend>Add Participants</legend>
-      New Particpant Emails: <input type='text'><br>
+      New Particpant Emails: <br><textarea cols='60' rows='10'></textarea><br>
       <input type='submit' value='Add'>
     </fieldset>
   </form>
-  <form id='admin_close' method='post'
+  <form id='admin-close' method='post'
     action='{{data['domain_root']}}/{{data['poll_key']}}/close?key={{data['poll']['initiator']}}'>
     <fieldset>
       <legend>Close Poll Now</legend>
@@ -20,6 +20,9 @@
       <input type='submit' value='Close'>
     </fieldset>
   </form>
+</div>
+
+<div id='json_data'>
 </div>
 
 <script>

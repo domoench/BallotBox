@@ -21,7 +21,6 @@
       var ajax_settings, form_obj, promise;
 
       form_obj = getFormData($(this).find('fieldset'));
-      console.log(form_obj);
       ajax_settings = {
         type: 'PUT',
         url: '',

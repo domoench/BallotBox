@@ -100,9 +100,13 @@ fieldset input, select {
   margin: 5px 5px 5px 0px;
 }
 
+#json-data {
+  display: none;
+}
+
 /* Poll Creation Page */
 #content.poll-create-page fieldset inputtext {
-    height: 30px;
+  height: 30px;
 }
 
 /* Voting Page */

@@ -15,7 +15,6 @@ define 'pollCreate', [ 'jquery', 'underscore' ], ( $, _ ) ->
   # On submit, parse form data into a javascript Object and PUT to Flask
   $( 'form' ).submit ( event ) ->
     form_obj = getFormData( $(this).find 'fieldset' )
-    console.log form_obj
     ajax_settings =
       type: 'PUT'
       url: ''
