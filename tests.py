@@ -23,7 +23,6 @@ import os
 # DB Connection
 REDIS_HOST = os.environ.get('REDIS_HOST')
 REDIS_PORT = int(os.environ.get('REDIS_PORT'))
-print (REDIS_HOST, REDIS_PORT)
 md = model.Model(REDIS_HOST, REDIS_PORT)
 
 # Mock out some data input. Assume its parsed correctly from the form
@@ -47,6 +46,7 @@ def runTests():
     test_create_and_get_poll()
     test_create_and_get_initiator()
     test_create_and_get_participant()
+    test_no_duplicate_participants()
     test_add_poll_participants()
     test_vote()
     test_check_poll_ongoing()
@@ -54,7 +54,7 @@ def runTests():
     # test_delete_poll_people() TODO
     test_calc_stats()
     test_get_all_votes()
-    # test_get_participant_vote_links()
+    test_get_participant_vote_links()
     test_get_poll_progress()
     test_delete_person()
     test_smtp()
@@ -174,6 +174,26 @@ def test_add_poll_participants():
     check(len(new_part_keys) == len(new_participants))
     md.clear_redis()
 
+def test_no_duplicate_participants():
+    # Poll Creation ignores duplicates
+    pd_raw = {
+        'name': 'a',
+        'choices': ['a', 'b', 'c'],
+        'close': datetime.datetime(2015, 7, 11, 4, 0).isoformat(),
+        'participants': ['a@b.com', 'a@b.com'],
+        'type': 'plurality',
+        'initiator': 'init@b.com'
+    }
+    poll_key = md.create_poll(pd_raw)
+    participants = md.get_poll(poll_key)['participants']
+    check(len(participants.keys()) == 1)
+    # Participant Addition ignores duplicates
+    new_participants = ['a@b.com', 'c@d.com']
+    new_part_keys = md.add_poll_participants(poll_key, new_participants)
+    check(len(new_part_keys) == 1)
+    check(len(md.get_poll(poll_key)['participants'].keys()) == 2)
+    md.clear_redis()
+
 def test_check_poll_ongoing():
     # Ongoing
     poll1_key = md.create_poll(poll_data_raw)
@@ -260,15 +280,9 @@ def test_get_participant_vote_links():
     results = md.get_participant_vote_links(poll_data['participants'], poll_key)
     for pair in results:
         vote_link = pair['vote_link']
-        check(vote_link[71:] in poll_data['participants'])
-        check(vote_link[1:70] == poll_key)
-    # Test Prevention of adding duplicates
-    duplicate_participants = []
-    for i in range(0, 30):
-        new_participants.append(str(i) + '@gmail.com')
-    added = md.add_poll_participants(poll_key, new_participants)
-    check(len(added) == 0)
-
+        link_segs = vote_link.split('/')
+        check(link_segs[-1] in poll_data['participants'])
+        check(link_segs[-2] == poll_key)
     md.clear_redis()
 
 def test_get_poll_progress():
