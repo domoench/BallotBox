@@ -76,10 +76,9 @@ def test_redis():
 
 def test_create_and_get_initiator():
     now_str = datetime.datetime.utcnow().isoformat()
-    poll_key = helpers.generateKeyString(poll_data_raw['name'], now_str,
-                                         'poll_')
+    poll_key = helpers.generateKeyString(poll_data_raw['name'], 'poll_')
     init_key = helpers.generateKeyString(poll_data_raw['initiator'],
-                                         now_str, 'init_')
+                                         'init_')
     init_data_raw = {
         'email': poll_data_raw['initiator'],
         'poll': poll_key
@@ -95,9 +94,9 @@ def test_create_and_get_initiator():
 
 def test_create_and_get_participant():
     now_str = datetime.datetime.utcnow().isoformat()
-    poll_key = helpers.generateKeyString(poll_data_raw['name'], now_str, 'poll_')
+    poll_key = helpers.generateKeyString(poll_data_raw['name'], 'poll_')
     part_key = helpers.generateKeyString(poll_data_raw['participants'][0],
-                                                       now_str, 'part_')
+                                                       'part_')
     part_data_raw = {
         'email': poll_data_raw['participants'][0],
         'poll': poll_key,
