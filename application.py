@@ -53,10 +53,11 @@ def index_route():
         # Notify the particpants and initiator
         part_link_list = md.get_participant_vote_links(poll_data['participants'], poll_key)
         for part_link in part_link_list:
-            notify.emailParticipant(part_link)
+            notify.email_participant(part_link, poll_data)
         init_key = poll_data['initiator']
         init_data = md.get_initiator(init_key)
-        notify.emailInitiator(init_data['email'], init_key, poll_key)
+        notify.email_initiator(init_data['email'], init_key, poll_key,
+                              poll_data['name'])
         # TODO: Delete this notification when testing is complete
         message = 'Poll \'' + poll_data['name'] + '\' created.\n'
         log_stmt = {'message': message, 'links': None}
@@ -152,7 +153,7 @@ def add_participants_route(poll_key):
         # Notify them
         new_part_links_dict = md.get_participant_vote_links(new_part_map, poll_key)
         for participant in new_part_links_dict:
-            notify.emailParticipant(participant)
+            notify.email_participant(participant, poll_data)
         # TODO: Redirect to admin page with alert that participants were added
         return 'Added Participants! (Not actually though...)'
 
