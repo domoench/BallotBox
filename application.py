@@ -39,7 +39,7 @@ md = model.Model(REDIS_HOST, REDIS_PORT)
 def index_route():
     """
     The index page. 'GET' generates a form to describe a new poll.
-    'POST' creates the new poll on the DB.
+    'PUT' creates the new poll on the DB.
     """
     if request.method == 'GET':
         return render_template('pollcreate.html')
@@ -49,7 +49,8 @@ def index_route():
         for key in put_data_dict.keys():
             poll_data_raw[key] = put_data_dict[key]
         """
-        test_poll_data = {
+        Sample of what raw poll data from form looks like:
+        poll_data_raw = {
             'name': 'Favorite Color',
             'choices': ['Red', 'Blue', 'Green', 'Teal'],
             'close': '2015-07-11T04:00:00',
@@ -57,7 +58,6 @@ def index_route():
             'type': 'plurality',
             'initiator': 'david.moench@arc90.com'
         }
-        poll_key = md.create_poll(test_poll_data)
         """
         poll_key = md.create_poll(poll_data_raw)
         poll_data = md.get_poll(poll_key)

@@ -9,7 +9,7 @@ define 'pollCreate', [ 'jquery', 'underscore', 'serialize' ], ( $, _, serialize 
     console.log last_choice
     null
 
-  # On submit, parse form data into a javascript Object
+  # On submit, parse form data into a javascript Object and PUT to Flask
   $( 'form' ).submit ( event ) ->
     form_obj = serialize.getFormData( $(this).find 'fieldset' )
     console.log form_obj

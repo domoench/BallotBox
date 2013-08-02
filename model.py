@@ -51,7 +51,7 @@ class Model:
             part_map[part_key] = email
         poll_data_processed = {
             'name': poll_data_raw['name'],
-            'choices': poll_data_raw['choices'],
+            'choices': filter(bool, poll_data_raw['choices']),
             'ongoing': ongoing,
             'close': poll_data_raw['close'],
             'type': poll_data_raw['type'],

@@ -3,7 +3,7 @@
 ###
 define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
   serialize =
-    elements_of_interest : [ 'input', 'select', 'textarea' ] #TODO: This is selecting the input:submit element
+    elements_of_interest : [ 'input', 'select', 'textarea' ]
 
     getFormData : ( form_selector ) ->
       ###
@@ -44,7 +44,6 @@ define 'serialize', [ 'jquery', 'underscore' ], ( $, _ ) ->
         participants: part_list
       result_obj = _.extend choices_obj, part_obj, other_pair_obj
 
-    # TODO: Is it even worth having getInputKey and getInputValue as methods?
     getInputKey : ( $elem ) ->
       ###
         Return the name key of a jQuery input element.
