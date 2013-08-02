@@ -43,11 +43,10 @@ class Model:
                                            '%Y-%m-%dT%H:%M:%S')
         ongoing = close - now > datetime.timedelta(minutes = 0)
         init_key = helpers.generateKeyString(poll_data_raw['initiator'],
-                                             now.isoformat(), 'init_')
+                                             'init_')
         part_map = {}
         for email in poll_data_raw['participants']:
-            part_key = helpers.generateKeyString(email, now.isoformat(),
-                                                 'part_')
+            part_key = helpers.generateKeyString(email, 'part_')
             part_map[part_key] = email
         poll_data_processed = {
             'name': poll_data_raw['name'],
@@ -59,7 +58,7 @@ class Model:
             'participants': part_map
         }
         poll_key = helpers.generateKeyString(poll_data_raw['name'],
-                                             now.isoformat(), 'poll_')
+                                             'poll_')
         self.client.set(poll_key, dumps(poll_data_processed))
 
         # Create initiator's record
@@ -233,8 +232,7 @@ class Model:
         for email in new_participants:
             if email not in part_emails: # No duplicate emails
                 # Add new participant key to the Poll
-                new_part_key = helpers.generateKeyString(email, now_str,
-                                                        'part_')
+                new_part_key = helpers.generateKeyString(email, 'part_')
                 participants[new_part_key] = email
                 self.client.set(poll_key, dumps(poll_data))
                 # Create new participant record

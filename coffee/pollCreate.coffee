@@ -22,7 +22,7 @@ define 'pollCreate', [ 'jquery', 'underscore' ], ( $, _ ) ->
       data: JSON.stringify form_obj
     promise = $.ajax ajax_settings
     promise.done ( data ) ->
-      $( '#content' ).html '<p>Form Created</p>'
+      $( '#content' ).html '<p>Poll Created</p>' # TODO: Handle correctly
     promise.fail ( jqXHR, textStatus, errorThrown ) ->
       throw new Error( errorThrown )
     false # Prevent default submit

@@ -156,7 +156,7 @@ def add_participants_route(poll_key):
         # TODO: Redirect to admin page with alert that participants were added
         return 'Added Participants! (Not actually though...)'
 
-@app.route('/<poll_key>/close', methods = ['POST'])
+@app.route('/<poll_key>/status', methods = ['PUT'])
 def close_poll_route(poll_key):
     # TODO: Reroute to a PATCH request to update the poll record. More RESTful.
     init_key = request.args.get('key')

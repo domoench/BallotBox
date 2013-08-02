@@ -29,7 +29,7 @@
       };
       promise = $.ajax(ajax_settings);
       promise.done(function(data) {
-        return $('#content').html('<p>Form Created</p>');
+        return $('#content').html('<p>Poll Created</p>');
       });
       promise.fail(function(jqXHR, textStatus, errorThrown) {
         throw new Error(errorThrown);

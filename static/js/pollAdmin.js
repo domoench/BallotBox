@@ -15,17 +15,33 @@
       var ajax_settings, part_list, promise;
 
       part_list = getParticipantForm($(this).find('fieldset'));
-      console.log(part_list);
       ajax_settings = {
         type: 'POST',
         url: '/' + poll_key + '/participants?key=' + init_key,
         contentType: 'application/json',
         data: JSON.stringify(part_list)
       };
-      console.log(ajax_settings);
       promise = $.ajax(ajax_settings);
       promise.done(function(data) {
         return $('#content').prepend('<p id=\'status-msg\'>Participants Added</p>');
+      });
+      promise.fail(function(jqXHR, textStatus, errorThrown) {
+        throw new Error(errorThrown);
+      });
+      return false;
+    });
+    $('form#admin-close').submit(function(event) {
+      var ajax_settings, promise;
+
+      ajax_settings = {
+        type: 'PUT',
+        url: '/' + poll_key + '/status?key=' + init_key,
+        contentType: 'text/plain',
+        data: 'closed'
+      };
+      promise = $.ajax(ajax_settings);
+      promise.done(function(data) {
+        return $('#content').prepend('<p id=\'status-msg\'>Poll Closed</p>');
       });
       promise.fail(function(jqXHR, textStatus, errorThrown) {
         throw new Error(errorThrown);

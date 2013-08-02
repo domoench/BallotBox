@@ -5,9 +5,10 @@
 """
 
 import hashlib
+import datetime
 from base64 import urlsafe_b64encode
 
-def generateKeyString(seed, time_now, prefix):
+def generateKeyString(seed, prefix):
     """
     Generates a unique key that will be used in Redis to identify poll,
     initiator, and participant records.
@@ -20,6 +21,7 @@ def generateKeyString(seed, time_now, prefix):
     """
     if prefix not in ['poll_', 'init_', 'part_']:
         raise Exception('Invalid key prefix: ' + prefix)
+    time_now = datetime.datetime.utcnow().isoformat()
     hash_token = hashlib.sha1(seed + time_now).hexdigest()
     hash_int = int(hash_token, 16) % (10 ** 12)
     hash_hex = hex(hash_int)
