@@ -14,7 +14,7 @@ TODO: PEP8 EVERYTHING
 
 from flask import Flask, url_for, render_template, request, redirect
 from werkzeug.routing import BaseConverter
-import config
+from config import conf
 import model
 import helpers
 import notify
@@ -61,7 +61,7 @@ def index_route():
         # TODO: Delete this notification when testing is complete
         message = 'Poll \'' + poll_data['name'] + '\' created.\n'
         log_stmt = {'message': message, 'links': None}
-        with open(config.conf['LOG_FILE'], 'a') as fh:
+        with open(conf['LOG_FILE'], 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
         # TODO: how to return success?
         return 'success'
@@ -115,7 +115,7 @@ def admin_route(poll_key):
         no_good = True
         page_data['message'] = ('Sorry, \'' + poll_data['name'] +
                         '\' has been closed.')
-        domain = config.conf['DOMAIN_ROOT']
+        domain = conf['DOMAIN_ROOT']
         page_data['link'] = {
             'anchor': domain + '/' + poll_key + '/results',
             'text': 'See Results'
@@ -128,7 +128,7 @@ def admin_route(poll_key):
         page_data['poll'] = poll_data
         page_data['poll_key'] = poll_key
         page_data['progress'] = md.get_poll_progress(poll_key)
-        page_data['domain_root'] = config.conf['DOMAIN_ROOT']
+        page_data['domain_root'] = conf['DOMAIN_ROOT']
         # Stuff frontend needs easy access to
         page_data['json_data'] = dumps({
           'poll_key': poll_key,
@@ -159,7 +159,6 @@ def add_participants_route(poll_key):
 
 @app.route('/<poll_key>/status', methods = ['PUT'])
 def close_poll_route(poll_key):
-    # TODO: Reroute to a PATCH request to update the poll record. More RESTful.
     init_key = request.args.get('key')
     poll_data = md.get_poll(poll_key)
     if init_key != poll_data['initiator']:
@@ -169,17 +168,21 @@ def close_poll_route(poll_key):
     else:
         # Close Poll
         md.close_poll(poll_key)
-        # TODO: Notify people. Replace with email.
+        # Notify People
         message = 'Poll \'' + poll_data['name'] + '\' closed.\n'
-        results_path = '/' + poll_key + '/results'
+        results_link = conf['DOMAIN_ROOT'] + '/' + poll_key + '/results'
+        notify.email_results(poll_data, results_link,
+                             md.get_initiator(init_key)['email'])
+
+        # TODO remove logging after testing complete
         log_stmt = {
             'message': message,
             'links': [{
-                'href': config.conf['DOMAIN_ROOT'] + results_path,
+                'href': results_link,
                 'text': 'See Results'
             }]
         }
-        with open(config.conf['LOG_FILE'], 'a') as fh:
+        with open(conf['LOG_FILE'], 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
         # TODO: Delete people's info
         # TODO: Redirect to results page
