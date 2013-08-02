@@ -44,8 +44,10 @@ class Model:
         ongoing = close - now > datetime.timedelta(minutes = 0)
         init_key = helpers.generateKeyString(poll_data_raw['initiator'],
                                              'init_')
+        part_list = poll_data_raw['participants']
+        part_list = list(set(part_list)) # remove duplicates
         part_map = {}
-        for email in poll_data_raw['participants']:
+        for email in part_list:
             part_key = helpers.generateKeyString(email, 'part_')
             part_map[part_key] = email
         poll_data_processed = {
