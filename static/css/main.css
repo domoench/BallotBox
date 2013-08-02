@@ -104,14 +104,17 @@ fieldset input, select {
   display: none;
 }
 
+p#status-msg {
+  margin-bottom: 15px;
+}
+
 /* Poll Creation Page */
 #content.poll-create-page fieldset inputtext {
   height: 30px;
 }
 
 /* Voting Page */
-#content.vote-page p#status-msg {
-  margin-bottom: 15px;
+#content.vote-page {
 }
 
 /* Results Page */

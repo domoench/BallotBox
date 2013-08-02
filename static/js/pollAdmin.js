@@ -5,19 +5,31 @@
       JQUERY SETUP
     */
 
-    var getParticipantForm;
+    var getParticipantForm, init_key, json_data, json_data_string, poll_key;
 
+    json_data_string = $('#json-data').html();
+    json_data = JSON.parse(json_data_string);
+    poll_key = json_data['poll_key'];
+    init_key = json_data['init_key'];
     $('form#admin-add').submit(function(event) {
-      var ajax_settings, part_list;
+      var ajax_settings, part_list, promise;
 
       part_list = getParticipantForm($(this).find('fieldset'));
       console.log(part_list);
       ajax_settings = {
         type: 'POST',
-        url: '',
+        url: '/' + poll_key + '/participants?key=' + init_key,
         contentType: 'application/json',
         data: JSON.stringify(part_list)
       };
+      console.log(ajax_settings);
+      promise = $.ajax(ajax_settings);
+      promise.done(function(data) {
+        return $('#content').prepend('<p id=\'status-msg\'>Participants Added</p>');
+      });
+      promise.fail(function(jqXHR, textStatus, errorThrown) {
+        throw new Error(errorThrown);
+      });
       return false;
     });
     /*

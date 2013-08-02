@@ -128,9 +128,14 @@ def admin_route(poll_key):
         page_data['poll_key'] = poll_key
         page_data['progress'] = md.get_poll_progress(poll_key)
         page_data['domain_root'] = config.conf['DOMAIN_ROOT']
+        # Stuff frontend needs easy access to
+        page_data['json_data'] = dumps({
+          'poll_key': poll_key,
+          'init_key': init_key
+        })
         return render_template('polladmin.html', data = page_data)
 
-@app.route('/<poll_key>/add', methods = ['POST'])
+@app.route('/<poll_key>/participants', methods = ['POST'])
 def add_participants_route(poll_key):
     # TODO: Reroute to a PATCH request to store in Redis. More RESTful.
     init_key = request.args.get('key')
@@ -141,10 +146,7 @@ def add_participants_route(poll_key):
         return render_template('message.html', data = page_data)
     else:
         # Add Participants
-        # TODO replace the dummy new_particpants data with data passed in from the admin page form.
-        new_participants = []
-        for i in range(0, 10):
-            new_participants.append('dummy' + str(i) + '@gmail.com')
+        new_participants = loads(request.data)
         new_part_map = md.add_poll_participants(poll_key, new_participants)
         # Notify them
         new_part_links_dict = md.get_participant_vote_links(new_part_map, poll_key)

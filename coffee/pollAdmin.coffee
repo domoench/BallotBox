@@ -2,6 +2,12 @@ define 'pollAdmin', [ 'jquery', 'underscore' ], ( $, _ ) ->
   ###
     JQUERY SETUP
   ###
+  # Get data stored in the #json-data div
+  json_data_string = $( '#json-data' ).html()
+  json_data = JSON.parse json_data_string
+  poll_key = json_data['poll_key']
+  init_key = json_data['init_key']
+
   # Add Participants Form. On submit, parse form data into a Javascript
   # list and POST to Flask
   $( 'form#admin-add' ).submit ( event ) ->
@@ -9,11 +15,15 @@ define 'pollAdmin', [ 'jquery', 'underscore' ], ( $, _ ) ->
     console.log part_list
     ajax_settings =
       type: 'POST'
-      url: ''
+      url: '/' + poll_key + '/participants?key=' + init_key
       contentType: 'application/json'
       data: JSON.stringify part_list
-      # promise = $.ajax ajax_settings
-    # TODO promise.done
+    console.log ajax_settings
+    promise = $.ajax ajax_settings
+    promise.done ( data ) ->
+      $( '#content' ).prepend '<p id=\'status-msg\'>Participants Added</p>' #TODO: Make closable
+    promise.fail ( jqXHR, textStatus, errorThrown ) ->
+      throw new Error( errorThrown )
     false # Prevent default submit
 
   ###
