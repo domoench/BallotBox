@@ -48,17 +48,6 @@ def index_route():
         poll_data_raw = {}
         for key in put_data_dict.keys():
             poll_data_raw[key] = put_data_dict[key]
-        """
-        Sample of what raw poll data from form looks like:
-        poll_data_raw = {
-            'name': 'Favorite Color',
-            'choices': ['Red', 'Blue', 'Green', 'Teal'],
-            'close': '2015-07-11T04:00:00',
-            'participants': ['alouie@gmail.com', 'lluna@gmail.com'],
-            'type': 'plurality',
-            'initiator': 'david.moench@arc90.com'
-        }
-        """
         poll_key = md.create_poll(poll_data_raw)
         poll_data = md.get_poll(poll_key)
         # Notify the particpants and initiator
