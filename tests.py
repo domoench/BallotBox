@@ -262,8 +262,8 @@ def test_smtp():
     msg['From'], msg['To'] = from_addr, to_addr
     # Make SMTP connection through mandrill
     s = smtplib.SMTP('smtp.mandrillapp.com', 587)
-    username = os.environ.get('MANDRILL_USER')
-    password = os.environ.get('MANDRILL_PASS')
+    username = config.MANDRILL_USER
+    password = config.MANDRILL_PASS
     s.login(username, password)
     s.sendmail(msg['From'], msg['To'], msg.as_string())
     s.quit()
