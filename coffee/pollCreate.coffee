@@ -70,23 +70,6 @@ define 'pollCreate', [ 'jquery', 'jquery.validate', 'underscore' ], ( $, jq_vali
       promise.fail ( jqXHR, textStatus, errorThrown ) ->
         throw new Error( errorThrown )
 
-  # On submit, parse form data into a javascript Object and PUT to Flask
-  ###
-  $( 'form' ).submit ( event ) ->
-    form_obj = getFormData( $(this).find 'fieldset' )
-    ajax_settings =
-      type: 'PUT'
-      url: ''
-      contentType: 'application/json'
-      data: JSON.stringify form_obj
-    promise = $.ajax ajax_settings
-    promise.done ( data ) ->
-      $( '#content' ).html '<p>Poll Created</p>' # TODO: Handle correctly
-    promise.fail ( jqXHR, textStatus, errorThrown ) ->
-      throw new Error( errorThrown )
-    false # Prevent default submit
-  ###
-
   ###
     HELPER FUNCTIONS
   ###
