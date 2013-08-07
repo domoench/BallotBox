@@ -108,13 +108,13 @@ p#status-msg {
   margin-bottom: 15px;
 }
 
-form label.error {
+form .error {
   color: #A60000;
 }
 
 form input.error,
 form textarea.error {
-  border: 1px solid #A60000;
+  border: 2px solid #A60000;
 }
 
 /* Poll Creation Page */

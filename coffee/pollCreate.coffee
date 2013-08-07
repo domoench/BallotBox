@@ -34,10 +34,14 @@ define 'pollCreate', [ 'jquery', 'jquery.validate', 'underscore' ], ( $, jq_vali
       participants:
         required: 'Your must have at least one particpant'
     invalidHandler: ( e, validator ) ->
-      errors = validator.numberOfInvalids
+      errors = validator.numberOfInvalids()
+      console.log "invalidHandler called: #{errors} errors"
       if errors
         message = if ( errors is 1 ) then 'You missed a required field' else "You missed #{errors} fields"
-
+        $( 'div.error span' ).html message
+        $( 'div.error' ).show()
+      else
+        $( 'div.error' ).hide()
     submitHandler: ( form ) ->
       form_obj = getFormData( $(form).find 'fieldset' )
       ajax_settings =

@@ -51,9 +51,14 @@
       invalidHandler: function(e, validator) {
         var errors, message;
 
-        errors = validator.numberOfInvalids;
+        errors = validator.numberOfInvalids();
+        console.log("invalidHandler called: " + errors + " errors");
         if (errors) {
-          return message = errors === 1 ? 'You missed a required field' : "You missed " + errors + " fields";
+          message = errors === 1 ? 'You missed a required field' : "You missed " + errors + " fields";
+          $('div.error span').html(message);
+          return $('div.error').show();
+        } else {
+          return $('div.error').hide();
         }
       },
       submitHandler: function(form) {
