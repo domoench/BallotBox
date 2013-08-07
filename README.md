@@ -21,16 +21,14 @@ Components
 * [CoffeeScript](http://coffeescript.org/)
 * [RequireJS](http://requirejs.org)
 
-Installation
-------------
+Configuration
+-----------
+Create a file called config.json and follow the template shown in
+config.json.template, filling in the actual values.
+
 In your virtualenv you must have the following installed:
 * [Flask](http://flask.pocoo.org/docs/installation/)
 * [redis-py](https://pypi.python.org/pypi/redis/)
-
-Create the following UNIX environment variables to pull in credentials:
-
-1. MANDRILL_USER: Mandrill email service username
-2. MANDRILL_PASS: Mandrill email service password
 
 Development Notes
 -----------------
