@@ -154,7 +154,8 @@ class Model:
             A python dictionary of the record, or None if no record found.
         """
         if part_key[:5] != 'part_':
-            raise Exception('Incorrect key passed to getPartiticpant(): ' + part_key)
+            raise Exception('Incorrect key passed to getPartiticpant(): ' +
+                             part_key)
         part_data = self.client.get(part_key)
         if part_data is None:
             return None
@@ -206,7 +207,7 @@ class Model:
         message = ('Participant ' + part_data['email'] + ' voted for ' +
                     poll_data['choices'][part_data['choice']] + '.')
         log_stmt = {'message': message, 'links': None}
-        with open(config.conf['LOG_FILE'], 'a') as fh:
+        with open(config.LOG_FILE, 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
         return part_data
 

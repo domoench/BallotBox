@@ -108,6 +108,15 @@ p#status-msg {
   margin-bottom: 15px;
 }
 
+form label.error {
+  color: #A60000;
+}
+
+form input.error,
+form textarea.error {
+  border: 1px solid #A60000;
+}
+
 /* Poll Creation Page */
 #content.poll-create-page fieldset inputtext {
   height: 30px;

@@ -14,7 +14,7 @@ TODO: PEP8 EVERYTHING
 
 from flask import Flask, url_for, render_template, request, redirect
 from werkzeug.routing import BaseConverter
-from config import conf
+import config
 import model
 import helpers
 import notify
@@ -31,9 +31,7 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 # DB Connect
-REDIS_HOST = os.environ.get('REDIS_HOST')
-REDIS_PORT = int(os.environ.get('REDIS_PORT'))
-md = model.Model(REDIS_HOST, REDIS_PORT)
+md = model.Model(config.REDIS_HOST, int(config.REDIS_PORT))
 
 @app.route('/', methods = ['GET', 'PUT'])
 def index_route():
@@ -61,7 +59,7 @@ def index_route():
         # TODO: Delete this notification when testing is complete
         message = 'Poll \'' + poll_data['name'] + '\' created.\n'
         log_stmt = {'message': message, 'links': None}
-        with open(conf['LOG_FILE'], 'a') as fh:
+        with open(config.LOG_FILE, 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
         # TODO: how to return success?
         return 'success'
@@ -115,9 +113,8 @@ def admin_route(poll_key):
         no_good = True
         page_data['message'] = ('Sorry, \'' + poll_data['name'] +
                         '\' has been closed.')
-        domain = conf['DOMAIN_ROOT']
         page_data['link'] = {
-            'anchor': domain + '/' + poll_key + '/results',
+            'anchor': config.DOMAIN_ROOT + '/' + poll_key + '/results',
             'text': 'See Results'
         }
     if no_good:
@@ -128,7 +125,7 @@ def admin_route(poll_key):
         page_data['poll'] = poll_data
         page_data['poll_key'] = poll_key
         page_data['progress'] = md.get_poll_progress(poll_key)
-        page_data['domain_root'] = conf['DOMAIN_ROOT']
+        page_data['domain_root'] = config.DOMAIN_ROOT
         # Stuff frontend needs easy access to
         page_data['json_data'] = dumps({
           'poll_key': poll_key,
@@ -170,7 +167,7 @@ def close_poll_route(poll_key):
         md.close_poll(poll_key)
         # Notify People
         message = 'Poll \'' + poll_data['name'] + '\' closed.\n'
-        results_link = conf['DOMAIN_ROOT'] + '/' + poll_key + '/results'
+        results_link = config.DOMAIN_ROOT + '/' + poll_key + '/results'
         notify.email_results(poll_data, results_link,
                              md.get_initiator(init_key)['email'])
 
@@ -182,7 +179,7 @@ def close_poll_route(poll_key):
                 'text': 'See Results'
             }]
         }
-        with open(conf['LOG_FILE'], 'a') as fh:
+        with open(config.LOG_FILE, 'a') as fh:
             fh.write(dumps(log_stmt) + '\n')
         # TODO: Delete people's info
         # TODO: Redirect to results page

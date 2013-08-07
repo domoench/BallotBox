@@ -1,8 +1,8 @@
-define 'pollCreate', [ 'jquery', 'underscore' ], ( $, _ ) ->
+define 'pollCreate', [ 'jquery', 'jquery.validate', 'underscore' ], ( $, jq_validate, _ ) ->
   ###
     JQUERY SETUP
   ###
-  # Add button dynamically adds choice input fields
+  # Add button dynamically injects a new choice input field
   $( '#add-button' ).click ( event ) ->
     last_choice = $( 'fieldset .choice' ).last()
     index = last_choice.attr 'index'
@@ -12,7 +12,47 @@ define 'pollCreate', [ 'jquery', 'underscore' ], ( $, _ ) ->
     console.log last_choice
     null
 
+  $( 'form' ).validate
+    rules:
+      name:
+        required: true
+      close:
+        required: true
+      initiator:
+        required: true
+        email: true
+      participants:
+        required: true
+    messages:
+      name:
+        required: 'Please give your poll a name'
+      close:
+        required: 'Please provide an expiration date for this poll'
+      initiator:
+        required: 'Your email is required'
+        email: 'Please provide a valid email address'
+      participants:
+        required: 'Your must have at least one particpant'
+    invalidHandler: ( e, validator ) ->
+      errors = validator.numberOfInvalids
+      if errors
+        message = if ( errors is 1 ) then 'You missed a required field' else "You missed #{errors} fields"
+
+    submitHandler: ( form ) ->
+      form_obj = getFormData( $(form).find 'fieldset' )
+      ajax_settings =
+        type: 'PUT'
+        url: ''
+        contentType: 'application/json'
+        data: JSON.stringify form_obj
+      promise = $.ajax ajax_settings
+      promise.done ( data ) ->
+        $( '#content' ).html '<p>Poll Created</p>' # TODO: Handle correctly
+      promise.fail ( jqXHR, textStatus, errorThrown ) ->
+        throw new Error( errorThrown )
+
   # On submit, parse form data into a javascript Object and PUT to Flask
+  ###
   $( 'form' ).submit ( event ) ->
     form_obj = getFormData( $(this).find 'fieldset' )
     ajax_settings =
@@ -26,6 +66,7 @@ define 'pollCreate', [ 'jquery', 'underscore' ], ( $, _ ) ->
     promise.fail ( jqXHR, textStatus, errorThrown ) ->
       throw new Error( errorThrown )
     false # Prevent default submit
+  ###
 
   ###
     HELPER FUNCTIONS

@@ -21,9 +21,7 @@ from email.mime.text import MIMEText
 import os
 
 # DB Connection
-REDIS_HOST = os.environ.get('REDIS_HOST')
-REDIS_PORT = int(os.environ.get('REDIS_PORT'))
-md = model.Model(REDIS_HOST, REDIS_PORT)
+md = model.Model(config.REDIS_HOST, int(config.REDIS_PORT))
 
 # Mock out some data input. Assume its parsed correctly from the form
 name = 'Favorite Color'
@@ -66,7 +64,8 @@ def check(predicate):
         raise Exception('Check failed')
 
 def test_redis():
-    client = redis.StrictRedis(host = REDIS_HOST, port = REDIS_PORT, db = 0)
+    client = redis.StrictRedis(host = config.REDIS_HOST,
+                               port = int(config.REDIS_PORT), db = 0)
     client.set('v1', 'test value 1')
     check(client.get('v1') == 'test value 1')
     client.delete('v1')

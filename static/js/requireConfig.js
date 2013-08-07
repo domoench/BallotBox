@@ -4,10 +4,20 @@
     baseUrl: '/static/js',
     paths: {
       'jquery': 'components/jquery/jquery.min',
+      'jquery.validate': 'components/jquery/jquery.validate',
       'underscore': 'components/underscore/underscore-min'
+    },
+    shim: {
+      'jquery': {
+        deps: ['require'],
+        exports: '$'
+      },
+      'jquery.validate': {
+        deps: ['jquery']
+      }
     }
   });
 
-  require(['jquery', 'underscore'], function($, _) {});
+  require(['jquery', 'jquery.validate', 'underscore'], function($, jq_validate, _) {});
 
 }).call(this);

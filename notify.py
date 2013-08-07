@@ -5,15 +5,13 @@
                 replace this with emailing.
 """
 import smtplib
-from config import conf
+import config
 import os
 from email.mime.text import MIMEText
 from json import dumps
 
 smtp_cli = smtplib.SMTP('smtp.mandrillapp.com', 587)
-username = os.environ.get('MANDRILL_USER')
-password = os.environ.get('MANDRILL_PASS')
-smtp_cli.login(username, password)
+smtp_cli.login(config.MANDRILL_USER, config.MANDRILL_PASS)
 
 def email_participant(participant, poll_data):
     """
@@ -30,10 +28,10 @@ def email_participant(participant, poll_data):
         poll_data: A dictionary of poll data. Obtained from model.getPoll()
     """
     msg = MIMEText('A BallotBox Poll has been created: ' + poll_data['name'] +
-                   '\n' + 'You can vote here: ' + conf['DOMAIN_ROOT'] +
+                   '\n' + 'You can vote here: ' + config.DOMAIN_ROOT +
                    participant['vote_link'])
     msg['Subject'] = 'BallotBox Poll: ' + poll_data['name']
-    msg['From'], msg['To'] = conf['EMAIL_SOURCE'], participant['email']
+    msg['From'], msg['To'] = config.EMAIL_SOURCE, participant['email']
     smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
 
     # TODO Delete logging when testing is complete
@@ -42,12 +40,12 @@ def email_participant(participant, poll_data):
         'message': message,
         'links': [
             {
-                'href': conf['DOMAIN_ROOT'] + participant['vote_link'],
+                'href': config.DOMAIN_ROOT + participant['vote_link'],
                 'text': 'Vote'
             }
         ]
     }
-    with open(conf['LOG_FILE'], 'a') as fh:
+    with open(config.LOG_FILE, 'a') as fh:
         fh.write(dumps(log_stmt) + '\n')
 
 def email_initiator(init_email, init_key, poll_key, poll_name):
@@ -63,9 +61,9 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
     admin_link_path = '/' + poll_key + '/admin?key=' + init_key
     msg = MIMEText('You created a BallotBox Poll: ' + poll_name +
                    '\n' + 'You can administrate it here: ' +
-                    conf['DOMAIN_ROOT'] + admin_link_path)
+                    config.DOMAIN_ROOT + admin_link_path)
     msg['Subject'] = 'BallotBox Poll Created: ' + poll_name
-    msg['From'], msg['To'] = conf['EMAIL_SOURCE'], init_email
+    msg['From'], msg['To'] = config.EMAIL_SOURCE, init_email
     smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
 
     # TODO Delete logging when testing is complete
@@ -74,12 +72,12 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
         'message': message,
         'links': [
             {
-                'href': conf['DOMAIN_ROOT'] + admin_link_path,
+                'href': config.DOMAIN_ROOT + admin_link_path,
                 'text': 'Administer'
             }
         ]
     }
-    with open(conf['LOG_FILE'], 'a') as fh:
+    with open(config.LOG_FILE, 'a') as fh:
         fh.write(dumps(log_stmt) + '\n')
 
 def email_results(poll_data, results_link, init_email):
@@ -98,7 +96,7 @@ def email_results(poll_data, results_link, init_email):
     msg = MIMEText('BallotBox poll \'' + poll_name + '\' closed.\n' +
                    'See the results here: ' + results_link)
     msg['Subject'] = 'BallotBox Poll Results: ' + poll_name
-    msg['From'] = conf['EMAIL_SOURCE']
+    msg['From'] = config.EMAIL_SOURCE
     # Email all participants
     for part_email in poll_data['participants'].values():
         print 'EMAILING PARTICIPANT: ' + part_email
