@@ -17,11 +17,3 @@ with open('config.json', 'r') as fp:
     REDIS_HOST = config['REDIS_HOST']
     REDIS_PORT = config['REDIS_PORT']
     REDISCLOUD_URL = config['REDISCLOUD_URL']
-
-"""
-conf = {
-    'DOMAIN_ROOT': 'http://localhost:5000',
-    'LOG_FILE': 'log.txt',
-    'EMAIL_SOURCE': 'david.moench@arc90.com' # Where BB notification emails will come from
-}
-"""
