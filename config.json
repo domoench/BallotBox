@@ -1,5 +1,5 @@
 {
-    "DOMAIN_ROOT": "http://ancient-peak-3697.herokuapp.com",
+    "DOMAIN_ROOT": "http://theballotbox.herokuapp.com",
     "LOG_FILE": "log.txt",
     "EMAIL_SOURCE": "david.moench@arc90.com",
     "MANDRILL_USER": "david.moench@arc90.com",
