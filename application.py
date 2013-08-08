@@ -31,7 +31,13 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 # DB Connect
-md = model.Model(config.REDIS_HOST, int(config.REDIS_PORT))
+# TODO: Is there a way to do this so it works on Heroku and off?
+# 1) Non-Heroku
+# md = model.Model(config.REDIS_HOST, int(config.REDIS_PORT))
+# 2) Heroku
+import urlparse
+url = urlparse.urlparse(config.REDISCLOUD_URL)
+md = model.Model(host = url.hostname, port = url.port, password = url.password)
 
 @app.route('/', methods = ['GET', 'PUT'])
 def index_route():
