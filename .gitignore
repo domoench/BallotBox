@@ -1,3 +1,4 @@
-config.json
+# TODO: Heroku needs to see config.json, but it sucks to commit it and have it visible in git
+# config.json
 log.txt
 venv/
