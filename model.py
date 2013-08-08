@@ -11,10 +11,11 @@ from json import dumps, loads
 import config # TODO: Remove this when temporary log file notification is no longer used
 
 class Model:
-    def __init__(self, host, port):
+    def __init__(self, host, port, password = None):
         self.host = host
         self.port = port
-        self.client = redis.StrictRedis(host = self.host, port = self.port, db = 0)
+        self.client = redis.StrictRedis(host = self.host, port = self.port,
+                                        db = 0, password = password)
 
     def create_poll(self, poll_data_raw):
         """

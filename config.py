@@ -16,6 +16,7 @@ with open('config.json', 'r') as fp:
     MANDRILL_PASS = config['MANDRILL_PASS']
     REDIS_HOST = config['REDIS_HOST']
     REDIS_PORT = config['REDIS_PORT']
+    REDISCLOUD_URL = config['REDISCLOUD_URL']
 
 """
 conf = {
