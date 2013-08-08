@@ -247,5 +247,5 @@ def clear_log_route():
     return redirect(url_for('log_route'))
 
 if __name__ == '__main__':
-    app.run(debug = True)
-    # To run publicly: app.run(host = '0.0.0.0')
+    # app.run(debug = True)
+    app.run(host = '0.0.0.0')
