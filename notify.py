@@ -97,14 +97,14 @@ def email_results(poll_data, results_link, init_email, mandrill_cli):
     }
     # Email all participants
     for part_email in poll_data['participants'].values():
-        message['To'] = [{'email': part_email}]
+        message['to'] = [{'email': part_email}]
         try:
             result = mandrill_cli.messages.send(message = message, async = False)
             print 'EMAILING PARTICIPANT: ' + result
         except mandrill.Error, e:
             print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
     # Email initiator
-    message['To'] = [{'email': init_email}]
+    message['to'] = [{'email': init_email}]
     try:
         result = mandrill_cli.messages.send(message = message, async = False)
         print 'EMAILING INITIATOR: ' + result
