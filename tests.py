@@ -55,7 +55,7 @@ def runTests():
     test_get_participant_vote_links()
     test_get_poll_progress()
     test_delete_person()
-    test_smtp()
+    # test_smtp()
     md.clear_redis()
     print 'All tests passed!'
 
@@ -254,6 +254,7 @@ def test_delete_person():
     check(len(md.client.keys('*')) == 1)
     md.clear_redis()
 
+# TODO Rewrite using mandrill API
 def test_smtp():
     from_addr = 'david.moench@arc90.com'
     to_addr = 'david.moench@arc90.com'

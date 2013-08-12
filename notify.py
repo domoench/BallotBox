@@ -9,9 +9,9 @@ import config
 import os
 from email.mime.text import MIMEText
 from json import dumps
+import mandrill
 
-smtp_cli = smtplib.SMTP('smtp.mandrillapp.com', 587)
-smtp_cli.login(config.MANDRILL_USER, config.MANDRILL_PASS)
+mandrill_cli = mandrill.Mandrill(config.MANDRILL_KEY)
 
 def email_participant(participant, poll_data):
     """
@@ -27,13 +27,18 @@ def email_participant(participant, poll_data):
             }
         poll_data: A dictionary of poll data. Obtained from model.getPoll()
     """
-    msg = MIMEText('A BallotBox Poll has been created: ' + poll_data['name'] +
-                   '\n' + 'You can vote here: ' + config.DOMAIN_ROOT +
-                   participant['vote_link'])
-    msg['Subject'] = 'BallotBox Poll: ' + poll_data['name']
-    msg['From'], msg['To'] = config.EMAIL_SOURCE, participant['email']
-    smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
-
+    try:
+        message = {
+            'from_email': config.EMAIL_SOURCE,
+            'to': [{'email': participant['email']}],
+            'subject': 'BallotBox Poll: ' + poll_data['name'],
+            'html': ('<p>A BallotBox Poll has been created: ' + poll_data['name'] +
+                     '</p><p>' + 'You can vote here: ' + config.DOMAIN_ROOT +
+                     participant['vote_link'] + '</p>')
+        }
+        result = mandrill_cli.messages.send(message = message, async = False)
+    except mandrill.Error, e:
+        print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
     # TODO Delete logging when testing is complete
     print 'Participant ' + participant['email'] + ' created.'
 
@@ -48,12 +53,18 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
         poll_name: Duh
     """
     admin_link_path = '/' + poll_key + '/admin?key=' + init_key
-    msg = MIMEText('You created a BallotBox Poll: ' + poll_name +
-                   '\n' + 'You can administrate it here: ' +
-                    config.DOMAIN_ROOT + admin_link_path)
-    msg['Subject'] = 'BallotBox Poll Created: ' + poll_name
-    msg['From'], msg['To'] = config.EMAIL_SOURCE, init_email
-    smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
+    try:
+        message = {
+            'from_email': config.EMAIL_SOURCE,
+            'to': [{'email': init_email}],
+            'subject': 'BallotBox Poll Created: ' + poll_name,
+            'html': ('<p>You created a BallotBox Poll: ' + poll_name +
+                    '</p><p>You can administrate it here: ' +
+                    config.DOMAIN_ROOT + admin_link_path + '</p>')
+        }
+        result = mandrill_cli.messages.send(message = message, async = False)
+    except mandrill.Error, e:
+        print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
 
     # TODO Delete logging when testing is complete
     print 'Initiator ' + init_email + ' created.'
@@ -71,16 +82,25 @@ def email_results(poll_data, results_link, init_email):
     # key and email. Then you won't need to pass it around seperately like this.
     """
     poll_name = poll_data['name']
-    msg = MIMEText('BallotBox poll \'' + poll_name + '\' closed.\n' +
-                   'See the results here: ' + results_link)
-    msg['Subject'] = 'BallotBox Poll Results: ' + poll_name
-    msg['From'] = config.EMAIL_SOURCE
+    message = {
+        'from_email': config.EMAIL_SOURCE,
+        'to': None,
+        'subject': 'BallotBox Poll Results: ' + poll_name,
+        'html': ('<p>BallotBox poll \'' + poll_name + '\' closed.</p>' +
+                 '<p>See the results here: ' + results_link + '</p>')
+    }
     # Email all participants
     for part_email in poll_data['participants'].values():
-        print 'EMAILING PARTICIPANT: ' + part_email
-        msg['To'] = part_email
-        smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
+        message['To'] = part_email
+        try:
+            result = mandrill_cli.messages.send(message = message, async = False)
+            print 'EMAILING PARTICIPANT: ' + part_email
+        except mandrill.Error, e:
+            print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
     # Email initiator
-    msg['To'] = init_email
-    print 'EMAILING INITIATOR: ' + init_email
-    smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
+    message['To'] = init_email
+    try:
+        result = mandrill_cli.messages.send(message = message, async = False)
+        print 'EMAILING INITIATOR: ' + init_email
+    except mandrill.Error, e:
+        print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
