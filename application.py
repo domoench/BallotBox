@@ -14,6 +14,7 @@ TODO: PEP8 EVERYTHING
 
 from flask import Flask, url_for, render_template, request, redirect
 from werkzeug.routing import BaseConverter
+import mandrill
 import config
 import model
 import helpers
@@ -55,13 +56,14 @@ def index_route():
         poll_key = md.create_poll(poll_data_raw)
         poll_data = md.get_poll(poll_key)
         # Notify the particpants and initiator
+        mandrill_cli = mandrill.Mandrill(config.MANDRILL_KEY)
         part_link_list = md.get_participant_vote_links(poll_data['participants'], poll_key)
         for part_link in part_link_list:
-            notify.email_participant(part_link, poll_data)
+            notify.email_participant(part_link, poll_data, mandrill_cli)
         init_key = poll_data['initiator']
         init_data = md.get_initiator(init_key)
         notify.email_initiator(init_data['email'], init_key, poll_key,
-                              poll_data['name'])
+                              poll_data['name'], mandrill_cli)
         # TODO: Delete this notification when testing is complete
         print 'Poll \'' + poll_data['name'] + '\' created.\n'
         # TODO: how to return success?
@@ -151,9 +153,10 @@ def add_participants_route(poll_key):
         new_participants = loads(request.data)
         new_part_map = md.add_poll_participants(poll_key, new_participants)
         # Notify them
+        mandrill_cli = mandrill.Mandrill(config.MANDRILL_KEY)
         new_part_links_dict = md.get_participant_vote_links(new_part_map, poll_key)
         for participant in new_part_links_dict:
-            notify.email_participant(participant, poll_data)
+            notify.email_participant(participant, poll_data, mandrill_cli)
         # TODO: Redirect to admin page with alert that participants were added
         return 'Added Participants! (Not actually though...)'
 
@@ -169,9 +172,11 @@ def close_poll_route(poll_key):
         # Close Poll
         md.close_poll(poll_key)
         # Notify People
+        mandrill_cli = mandrill.Mandrill(config.MANDRILL_KEY)
         results_link = config.DOMAIN_ROOT + '/' + poll_key + '/results'
         notify.email_results(poll_data, results_link,
-                             md.get_initiator(init_key)['email'])
+                             md.get_initiator(init_key)['email'],
+                             mandrill_cli)
 
         # TODO remove logging after testing complete
         print 'Poll \'' + poll_data['name'] + '\' closed.\n'

@@ -11,9 +11,7 @@ from email.mime.text import MIMEText
 from json import dumps
 import mandrill
 
-mandrill_cli = mandrill.Mandrill(config.MANDRILL_KEY)
-
-def email_participant(participant, poll_data):
+def email_participant(participant, poll_data, mandrill_cli):
     """
     Email the given participant with their ballot link and instructions on how
     to vote.
@@ -26,6 +24,7 @@ def email_participant(participant, poll_data):
                 'vote_link': '/poll_MHgzOWVjNmRlYmIwTA/part_MHg0OTM4N2Q0YmNM'
             }
         poll_data: A dictionary of poll data. Obtained from model.getPoll()
+        mandrill_cli: A mandrill API connection object
     """
     try:
         message = {
@@ -39,10 +38,11 @@ def email_participant(participant, poll_data):
         result = mandrill_cli.messages.send(message = message, async = False)
     except mandrill.Error, e:
         print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+        raise
     # TODO Delete logging when testing is complete
     print 'Participant ' + participant['email'] + ' created.'
 
-def email_initiator(init_email, init_key, poll_key, poll_name):
+def email_initiator(init_email, init_key, poll_key, poll_name, mandrill_cli):
     """
     Email the poll's initiator with a link to the poll administration page.
 
@@ -51,6 +51,7 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
         init_key: The initiator's key string
         poll_key: The poll's key string
         poll_name: Duh
+        mandrill_cli: A mandrill API connection object
     """
     admin_link_path = '/' + poll_key + '/admin?key=' + init_key
     try:
@@ -65,11 +66,12 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
         result = mandrill_cli.messages.send(message = message, async = False)
     except mandrill.Error, e:
         print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+        raise
 
     # TODO Delete logging when testing is complete
     print 'Initiator ' + init_email + ' created.'
 
-def email_results(poll_data, results_link, init_email):
+def email_results(poll_data, results_link, init_email, mandrill_cli):
     """
     Email the results link to the initator and all participants.
 
@@ -77,6 +79,7 @@ def email_results(poll_data, results_link, init_email):
         poll_data: A dictionary of poll data. Obtained from model.getPoll()
         results_link: The URL where people can view the poll's results
         init_email: The initiator's email address
+        mandrill_cli: A mandrill API connection object
 
     # TODO: change poll_data scheme so that the initiator record is both the
     # key and email. Then you won't need to pass it around seperately like this.
@@ -104,3 +107,4 @@ def email_results(poll_data, results_link, init_email):
         print 'EMAILING INITIATOR: ' + init_email
     except mandrill.Error, e:
         print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+        raise
