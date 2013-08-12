@@ -222,24 +222,6 @@ def participant_poll_route(poll_key, participant_key):
         page_data['status_msg'] = 'Thank you for voting ' + participant['email']
         return render_template('vote.html', data = page_data)
 
-# TODO: Remove this route after emailing is implemented
-@app.route('/log', methods = ['GET'])
-def log_route():
-    log_lines = []
-    with open('log.txt', 'r') as fh:
-        for line in fh:
-            if line != None:
-                line_dict = loads(line)
-                log_lines.append(line_dict)
-    return render_template('log.html', data = log_lines)
-
-# TODO: Remove this route after emailing is implemented
-@app.route('/clearlog', methods = ['GET'])
-def clear_log_route():
-    md.clear_redis()
-    open('log.txt', 'w').close()
-    return redirect(url_for('log_route'))
-
 if __name__ == '__main__':
     # app.run(debug = True)
     app.run(debug = True, host = '0.0.0.0')

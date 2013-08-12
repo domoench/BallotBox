@@ -280,7 +280,6 @@ class Model:
         poll_data = self.get_poll(poll_key)
         poll_data['ongoing'] = False
         self.client.set(poll_key, dumps(poll_data))
-        # TODO: Notify the participants and send them the results: notify.emailResults()
 
     def get_all_votes(self, poll_key):
         """
