@@ -63,10 +63,7 @@ def index_route():
         notify.email_initiator(init_data['email'], init_key, poll_key,
                               poll_data['name'])
         # TODO: Delete this notification when testing is complete
-        message = 'Poll \'' + poll_data['name'] + '\' created.\n'
-        log_stmt = {'message': message, 'links': None}
-        with open(config.LOG_FILE, 'a') as fh:
-            fh.write(dumps(log_stmt) + '\n')
+        print 'Poll \'' + poll_data['name'] + '\' created.\n'
         # TODO: how to return success?
         return 'success'
 
@@ -172,21 +169,12 @@ def close_poll_route(poll_key):
         # Close Poll
         md.close_poll(poll_key)
         # Notify People
-        message = 'Poll \'' + poll_data['name'] + '\' closed.\n'
         results_link = config.DOMAIN_ROOT + '/' + poll_key + '/results'
         notify.email_results(poll_data, results_link,
                              md.get_initiator(init_key)['email'])
 
         # TODO remove logging after testing complete
-        log_stmt = {
-            'message': message,
-            'links': [{
-                'href': results_link,
-                'text': 'See Results'
-            }]
-        }
-        with open(config.LOG_FILE, 'a') as fh:
-            fh.write(dumps(log_stmt) + '\n')
+        print 'Poll \'' + poll_data['name'] + '\' closed.\n'
         # TODO: Delete people's info
         # TODO: Redirect to results page
         return 'Closed Poll!'

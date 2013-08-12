@@ -35,18 +35,7 @@ def email_participant(participant, poll_data):
     smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
 
     # TODO Delete logging when testing is complete
-    message = 'Participant ' + participant['email'] + ' created.'
-    log_stmt = {
-        'message': message,
-        'links': [
-            {
-                'href': config.DOMAIN_ROOT + participant['vote_link'],
-                'text': 'Vote'
-            }
-        ]
-    }
-    with open(config.LOG_FILE, 'a') as fh:
-        fh.write(dumps(log_stmt) + '\n')
+    print 'Participant ' + participant['email'] + ' created.'
 
 def email_initiator(init_email, init_key, poll_key, poll_name):
     """
@@ -67,18 +56,7 @@ def email_initiator(init_email, init_key, poll_key, poll_name):
     smtp_cli.sendmail(msg['From'], msg['To'], msg.as_string())
 
     # TODO Delete logging when testing is complete
-    message = 'Initiator ' + init_email + ' created.'
-    log_stmt = {
-        'message': message,
-        'links': [
-            {
-                'href': config.DOMAIN_ROOT + admin_link_path,
-                'text': 'Administer'
-            }
-        ]
-    }
-    with open(config.LOG_FILE, 'a') as fh:
-        fh.write(dumps(log_stmt) + '\n')
+    print 'Initiator ' + init_email + ' created.'
 
 def email_results(poll_data, results_link, init_email):
     """

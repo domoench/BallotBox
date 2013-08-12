@@ -204,12 +204,9 @@ class Model:
         part_data['choice'] = choice
         part_data['voted'] = True
         self.set_participant(part_key, part_data)
-        # TODO: Remove the following notification after the demo
-        message = ('Participant ' + part_data['email'] + ' voted for ' +
+        # TODO: Remove the following log notification
+        print ('Participant ' + part_data['email'] + ' voted for ' +
                     poll_data['choices'][part_data['choice']] + '.')
-        log_stmt = {'message': message, 'links': None}
-        with open(config.LOG_FILE, 'a') as fh:
-            fh.write(dumps(log_stmt) + '\n')
         return part_data
 
     def add_poll_participants(self, poll_key, new_participants):
@@ -333,9 +330,7 @@ class Model:
         else:
             message = ('Initiator ' + self.get_initiator(key)['email'] +
                       ' deleted.')
-        log_stmt = {'message': message, 'links': None}
-        with open('log.txt', 'a') as fh:
-            fh.write(dumps(log_stmt) + '\n')
+        print message
         # Delete the DB record
         self.client.delete(key)
 
