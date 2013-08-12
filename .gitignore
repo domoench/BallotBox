@@ -2,3 +2,4 @@
 # config.json
 log.txt
 venv/
+.env
