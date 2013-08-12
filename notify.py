@@ -103,6 +103,7 @@ def email_results(poll_data, results_link, init_email, mandrill_cli):
             print 'EMAILING PARTICIPANT: ' + result
         except mandrill.Error, e:
             print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+            raise
     # Email initiator
     message['to'] = [{'email': init_email}]
     try:
