@@ -99,9 +99,9 @@ def email_results(poll_data, results_link, init_email, mandrill_cli):
                 'images': None
             }
             result = mandrill_cli.messages.send(message = message)
-            print 'EMAILING PARTICIPANT: ' + result
-        except mandrill.Error, e:
-            print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+            print 'EMAILING PARTICIPANT: ', result
+        except Exception, e:
+            print 'A Mandrill Error Occurred: %s' % e
             raise
     # Email initiator
     try:
@@ -114,7 +114,7 @@ def email_results(poll_data, results_link, init_email, mandrill_cli):
             'images': None
         }
         result = mandrill_cli.messages.send(message = message)
-        print 'EMAILING INITIATOR: ' + result
-    except mandrill.Error, e:
-        print 'A Mandrill Error Occurred: %s - %s' % (e.__class__, e)
+        print 'EMAILING INITIATOR: ', result
+    except Exception, e:
+        print 'A Mandrill Error Occurred: %s' % e
         raise
