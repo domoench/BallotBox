@@ -29,6 +29,7 @@ config.json.template, filling in the actual values.
 In your virtualenv you must have the following installed:
 * [Flask](http://flask.pocoo.org/docs/installation/)
 * [redis-py](https://pypi.python.org/pypi/redis/)
+* [mandrill] (https://mandrillapp.com/api/docs/index.python.html)
 
 Development Notes
 -----------------

@@ -3,3 +3,6 @@
 log.txt
 venv/
 .env
+config.json
+*.swp
+*.pyc

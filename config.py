@@ -1,10 +1,17 @@
 """
 BallotBox configuration values
 """
-import os
+from json import loads
 
-# Get config values from the environment
-DOMAIN_ROOT = os.environ['DOMAIN_ROOT']
-EMAIL_SOURCE = os.environ['EMAIL_SOURCE']
-MANDRILL_KEY = os.environ['MANDRILL_KEY']
-REDISCLOUD_URL = os.environ['REDISCLOUD_URL']
+# Get config values from config.json
+with open('config.json', 'r') as fp:
+  config_str = fp.read()
+  config = loads(config_str)
+
+  DOMAIN_ROOT = config['DOMAIN_ROOT']
+  LOG_FILE = config['LOG_FILE']
+  EMAIL_SOURCE = config['EMAIL_SOURCE']
+  MANDRILL_USER = config['MANDRILL_USER']
+  MANDRILL_KEY = config['MANDRILL_KEY']
+  REDIS_HOST = config['REDIS_HOST']
+  REDIS_PORT = config['REDIS_PORT']

@@ -1,0 +1,9 @@
+{
+  "DOMAIN_ROOT": "",
+  "LOG_FILE": "",
+  "EMAIL_SOURCE": "",
+  "MANDRILL_USER": "",
+  "MANDRILL_PASS": "",
+  "REDIS_HOST": "",
+  "REDIS_PORT": ""
+}
