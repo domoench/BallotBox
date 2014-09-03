@@ -13,6 +13,9 @@ to each participant that allows them to vote. After the poll closes a link to
 the results is emailed to everyone and their email addresses are erased from
 BallotBox's memory.
 
+This used to be deployed on Heroku. Hopefully someday I'll get around to 
+re-deploying it on my own server. For now it sleeps.
+
 Components
 ----------
 * [Python](http://www.python.org/)
