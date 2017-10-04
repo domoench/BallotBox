@@ -3,6 +3,8 @@ BallotBox
 
 Overview
 --------
+*Note: This is super old*
+
 BallotBox is a web application for conducting polls. It is convenient and
 non-invasive because participants don't need to create user accounts, and it
 prevents voter fraud.
